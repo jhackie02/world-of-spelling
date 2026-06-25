@@ -5,959 +5,1439 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Inside the World of Spelling</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&family=Yusei+Magic&family=Comic+Neue:wght@700&family=Russo+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&family=Comic+Neue:wght@700&family=Carter+One&display=swap" rel="stylesheet">
+    
     <style>
-        /* FONT ASSIGNMENTS */
-        .font-roblox { font-family: 'Russo One', sans-serif; }
-        .font-heading { font-family: 'Yusei Magic', sans-serif; }
-        .font-main { font-family: 'Comic Sans MS', 'Comic Sans', 'Comic Neue', cursive; }
-        .font-keyboard { font-family: 'Balsamiq Sans', cursive; }
-
-        /* ROBLOX-INSPIRED UI (Chunky, Solid Colors, No Gradients) */
+        :root {
+            --shadow-color: #000;
+        }
         body {
-            background-color: #87CEEB; /* Sky Blue Base */
+            font-family: 'Balsamiq Sans', cursive;
+            background-color: #1a1a1a;
             user-select: none;
             -webkit-user-select: none;
             overflow: hidden; /* Prevent scrolling */
-            touch-action: manipulation;
-        }
-
-        /* OPTIONAL BACKGROUND IMAGE 
-           Change the URL below to any Roblox-style PNG or background you prefer.
-        */
-        #bg-layer {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background-image: url('https://www.esrb.org/wp-content/uploads/2023/08/Roblox-Key.png'); 
-            background-size: cover;
-            background-position: center;
-            opacity: 0.25; /* Keeps it subtle so text is readable */
-            z-index: -1;
-        }
-
-        .roblox-box {
-            background-color: #ffffff;
-            border: 4px solid #000000;
-            box-shadow: 6px 6px 0px #000000;
-            border-radius: 12px;
-        }
-
-        .roblox-btn {
-            background-color: #3b82f6; /* Default Blue */
-            border: 3px solid #000000;
-            box-shadow: 4px 4px 0px #000000;
-            border-radius: 8px;
-            color: white;
-            font-weight: bold;
-            transition: all 0.1s;
-            cursor: pointer;
-            text-align: center;
         }
         
-        .roblox-btn:active {
-            transform: translate(4px, 4px);
-            box-shadow: 0px 0px 0px #000000;
+        .bg-app {
+            background-image: url('https://media.wired.com/photos/64fa35ee93a336d16731ae1e/3:2/w_2560%2Cc_limit/Roblox-Gadget-Lab-Gear.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .bg-overlay {
+            background-color: rgba(0, 0, 0, 0.7);
         }
 
-        .btn-green { background-color: #22c55e; }
-        .btn-red { background-color: #ef4444; }
-        .btn-yellow { background-color: #eab308; color: #000; }
-        .btn-purple { background-color: #a855f7; }
-        .btn-orange { background-color: #f97316; }
-        .btn-gray { background-color: #6b7280; }
+        /* Roblox-style Button Class */
+        .btn-roblox {
+            border: 4px solid black;
+            box-shadow: 6px 6px 0px 0px var(--shadow-color);
+            transition: all 0.1s ease;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .btn-roblox:active {
+            transform: translate(4px, 4px);
+            box-shadow: 2px 2px 0px 0px var(--shadow-color);
+        }
+        .btn-roblox:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
 
-        /* KEYBOARD STYLING */
+        /* Font specific overrides */
+        .font-roblox-title { font-family: 'Carter One', 'Comic Neue', cursive; }
+        .font-balsamiq { font-family: 'Balsamiq Sans', cursive; }
+        .font-comic { font-family: 'Comic Neue', cursive; }
+
+        /* Keyboard Styles */
         .key {
-            background-color: #f3f4f6;
-            border: 2px solid #000;
-            box-shadow: 2px 2px 0px #000;
-            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            font-size: 1.25rem;
+            background-color: #e5e7eb;
+            border: 3px solid black;
+            border-radius: 0.5rem;
+            box-shadow: 2px 2px 0px 0px black;
             cursor: pointer;
-            transition: all 0.05s;
+            font-weight: bold;
+            font-size: 1.5rem;
+            transition: background-color 0.1s, transform 0.1s;
         }
         .key:active {
             transform: translate(2px, 2px);
-            box-shadow: 0px 0px 0px #000;
-            background-color: #e5e7eb;
+            box-shadow: 0px 0px 0px 0px black;
         }
-        .key-special { background-color: #d1d5db; }
-        .key-enter { background-color: #22c55e; color: white; }
+        .key-vowel { color: #ef4444; } /* Red */
+        .key-consonant { color: #3b82f6; } /* Blue */
+        .key-punct { color: #eab308; } /* Yellow */
+        .key-action { background-color: #9ca3af; color: black; font-size: 1.2rem; }
+        .key.disabled { opacity: 0.2; pointer-events: none; }
 
-        /* ANIMATIONS */
-        .fade-in { animation: fadeIn 0.3s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        /* OVERLAYS */
-        .feedback-overlay {
-            position: fixed;
-            top: 60%; /* Shifted down to not cover the answer area */
-            left: 0; right: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 50;
-            background: transparent; /* Removed black overlay background */
-            pointer-events: none; /* Let clicks pass through */
+        /* Answer Box */
+        .answer-box {
+            border: 4px solid black;
+            box-shadow: 4px 4px 0px 0px black;
+            background-color: white;
+            color: black;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
-
-        /* Hide elements */
+        .answer-box.active-cursor {
+            border-color: #3b82f6 !important;
+            background-color: #eff6ff;
+            box-shadow: 0 0 10px #3b82f6;
+        }
+        .answer-box.merged {
+            background-color: #4ade80; /* Green success */
+            margin: 0 !important;
+            color: white;
+        }
+        
+        /* Utility */
         .hidden-screen { display: none !important; }
+
+        /* Floating Animation */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float { animation: float 3s ease-in-out infinite; }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col items-center justify-center font-main text-gray-900">
-
-<!-- Background Image Layer -->
-<div id="bg-layer"></div>
-
-<!-- ========================================== -->
-<!-- TEACHER SETTINGS SECTION                   -->
-<!-- ========================================== -->
-<script>
-    // 1. GAME TIME IN SECONDS (300 = 5 minutes)
-    const GAME_TIME = 300; 
-
-    // 2. GOOGLE APP SCRIPT URL (Paste your Web App URL here)
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwJnwP-iP_WIRIqDbucvAHT9xwYbszA_p6HDgey2J2ZvVTDBTcmRw6aKIDLoj7lMOo9Dg/exec";
-
-    // 3. TOPICS & WORD LISTS
-    // 'assignedClasses': Use 'all' or specific classes like ['3A', '4A']
-    const topics = [
-        {
-            id: 'phonics',
-            name:'Phonics',
-            assignedClasses: ['all'],
-            words: ["am","an","at","as","ax","if","in","it","of","on","or","ox","up","us","bat","cat","dad","fan","hat","jam","man","map","nap","pan","rat","sad","tag","van","wag","zap","bed","beg","bet","den","fed","get","hen","jet","leg","men","net","pen","pet","red","set","wet","big","bin","dig","fin","fit","hit","lip","mix","pig","pin","rip","sit","six","tip","wig","win","zip","box","cob","cod","cop","dog","dot","fog","fox","hop","hot","jog","log","mop","pot","rod","top","bug","bun","bus","cub","cup","cut","fun","gum","hug","hut","jug","mud","nut","pup","rug","sun","tub","bend","best","camp","fast","hand","land","milk","nest","park","sand","tent","wind","fish","frog","jump","lamp","mask","rock","sock","ring","sing","king","duck","lock","back","pack","kick","pick","wish","dish","come","from","help","play","look","book","read","good","want","must","with","your","apple","bread","chair","clean","cloud","drink","grass","green","happy","house","light","plant","smile","snake","spoon","stone","sweet","train","water","white","black","brown","shirt","clock","brush","beach","camel","dance","earth","fruit","glass","heart","jelly","lemon","magic","music","paper","queen","robot","sheep","table","tiger","uncle","zebra"]
-        },
-        { id: 'food', name: '🍔 Food', assignedClasses: ['4', '5'], words: ["egg", "ham", "jam", "pie", "tea", "bun", "nut", "cake", "fish", "rice", "milk", "pear", "beef", "corn", "soup", "apple", "bread", "grape", "lemon", "mango", "peach", "salad", "pizza", "banana", "carrot", "cookie", "cheese", "orange", "tomato", "potato", "noodle"] },
-        { id: 'animals', name: '🦁 Animals', assignedClasses: ['all'], words: ["cat", "dog", "pig", "ant", "bee", "fox", "owl", "bear", "bird", "duck", "frog", "goat", "lion", "fish", "wolf", "camel", "horse", "mouse", "sheep", "tiger", "zebra", "whale", "snake", "rabbit", "monkey", "turkey", "donkey", "parrot", "spider", "shrimp"] },
-        { id: 'places', name: '🏰 Places', assignedClasses: ['5'], words: ["gym", "zoo", "park", "bank", "farm", "shop", "home", "lake", "road", "beach", "hotel", "store", "house", "river", "school", "garden", "market", "museum", "office"] },
-        { id: 'transportation', name: '🚗 Transportation', assignedClasses: ['5'], words: ["bus", "car", "van", "boat", "bike", "jeep", "train", "truck", "plane", "subway", "scooter"] },
-        { id: 'school', name: '📚 School Things', assignedClasses: ['all'], words: ["pen", "bag", "map", "book", "desk", "lamp", "ruler", "paper", "chair", "clock", "eraser", "marker", "pencil"] },
-        { id: 'nature', name: '🌳 Nature', assignedClasses: ['5'], words: ["sun", "sky", "sea", "tree", "star", "rain", "rock", "cloud", "grass", "plant", "earth", "flower", "forest", "winter", "spring"] },
-        { id: 'family', name: '👨‍👩‍👧 Family', assignedClasses: ['all'], words: ["mom", "dad", "son", "aunt", "baby", "brother", "sister", "family", "father", "mother", "cousin"] },
-        { id: 'clothes', name: '👕 Clothes', assignedClasses: ['5'], words: ["cap", "hat", "vest", "coat", "dress", "shirt", "pants", "skirt", "socks", "shoes", "jacket", "sweater"] },
-        { id: 'jobs', name: '👨‍🍳 Jobs', assignedClasses: ['all'], words: ["chef", "cook", "nurse", "pilot", "doctor", "farmer", "police", "teacher", "driver", "singer"] },
-        { id: 'sports', name: '⚽ Sports & Activities', assignedClasses: ['all'], words: ["run", "hop", "jump", "walk", "swim", "dance", "skate", "soccer", "tennis", "baseball"] },
-        { id: 'colors', name: '🎨 Colors', assignedClasses: ['all'], words: ["red", "tan", "blue", "pink", "gray", "black", "brown", "green", "white", "yellow", "purple", "orange"] },
-        { id: 'weather', name: '🌤 Weather', assignedClasses: ['all'], words: ["sun", "wind", "rain", "hot", "cold", "warm", "cloudy", "snowy", "stormy", "sunny", "rainy"] }
-    ];
-
-    // 4. STUDENT DATABASE
-    const students = {
-        3: [
-            {id:'0', name:'Sample'}, {id:'1', name:'Chen'}, {id:'2', name:'Jacob'},
-            {id:'3', name:'Yoga'}, {id:'4', name:'Jason'}, {id:'5', name:'Andy'},
-            {id:'6', name:'Louis'}, {id:'7', name:'Jane'}, {id:'8', name:'Cindy'},
-            {id:'9', name:'Bella'}, {id:'10', name:'Henin'}
-        ],
-        4: [
-            {id:'0', name:'Sample'}, {id:'1', name:'Paul'}, {id:'2', name:'Vincent'},
-            {id:'3', name:'Brian'}, {id:'4', name:'Alice'}, {id:'5', name:'Emma'},
-            {id:'6', name:'Jean'}, {id:'7', name:'Coco'}, {id:'8', name:'Mika'}
-        ],
-        5: [
-            {id:'0', name:'Sample'}, {id:'1', name:'Eason'}, {id:'2', name:'Sean'}
-        ],
-        6: [
-            {id:'0', name:'Sample'}, {id:'1', name:'Leo'}, {id:'2', name:'Rody'},
-            {id:'4', name:'Daren'}
-        ]
-    };
-</script>
-<!-- ========================================== -->
-<!-- END OF TEACHER SETTINGS                    -->
-<!-- ========================================== -->
-
-<!-- SCREEN 1: WELCOME -->
-<div id="screen-welcome" class="flex flex-col items-center justify-center w-full h-full p-4 fade-in">
-    <div class="roblox-box p-8 text-center max-w-lg w-full pop-in flex flex-col items-center bg-white/90 backdrop-blur-sm">
-        <h1 class="font-roblox text-4xl md:text-5xl text-blue-600 mb-6 drop-shadow-md uppercase tracking-wide">Inside the World of Spelling</h1>
-        
-        <button onclick="startGameFlow()" class="roblox-btn btn-green text-2xl px-8 py-4 w-full mb-4">Start Adventure</button>
-        <button id="btn-resume" onclick="resumeGame()" class="roblox-btn btn-yellow text-xl px-8 py-3 w-full hidden">Resume Saved Game</button>
-    </div>
-</div>
-
-<!-- SCREEN 2: SELECT CLASS -->
-<div id="screen-class" class="hidden-screen flex flex-col items-center justify-center w-full h-full p-4 fade-in">
-    <h1 class="font-roblox text-4xl md:text-5xl text-white drop-shadow-[2px_2px_0_#000] mb-8 tracking-widest">SELECT CLASS</h1>
-    <div class="grid grid-cols-2 gap-6 max-w-md w-full pop-in">
-        <button onclick="selectClass('3A')" class="roblox-btn btn-blue text-4xl py-6 font-roblox">3A</button>
-        <button onclick="selectClass('4A')" class="roblox-btn btn-red text-4xl py-6 font-roblox">4A</button>
-        <button onclick="selectClass('5A')" class="roblox-btn btn-green text-4xl py-6 font-roblox">5A</button>
-        <button onclick="selectClass('6A')" class="roblox-btn btn-purple text-4xl py-6 font-roblox">6A</button>
-    </div>
-    <button onclick="showScreen('screen-welcome')" class="roblox-btn btn-gray mt-12 px-8 py-3 text-xl">Back</button>
-</div>
-
-<!-- SCREEN 3: SELECT STUDENT -->
-<div id="screen-student" class="hidden-screen flex flex-col items-center justify-start w-full h-full p-4 fade-in overflow-y-auto pt-10">
-    <h1 class="font-roblox text-4xl md:text-5xl text-white drop-shadow-[2px_2px_0_#000] mb-6 tracking-wide">WHO ARE YOU?</h1>
-    <div id="student-list" class="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl w-full pb-20 pop-in">
-        <!-- Buttons injected here -->
-    </div>
-    <button onclick="showScreen('screen-class')" class="roblox-btn btn-gray fixed bottom-4 px-8 py-3 text-xl">Back</button>
-</div>
-
-<!-- SCREEN 3.5: SELECT TOPIC -->
-<div id="screen-topics" class="hidden-screen flex flex-col items-center justify-start w-full h-full p-4 fade-in overflow-y-auto pt-10">
-    <h1 class="font-roblox text-4xl md:text-5xl text-white drop-shadow-[2px_2px_0_#000] mb-6 tracking-wide">CHOOSE A TOPIC</h1>
-    <div id="topic-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl w-full pb-20 pop-in">
-        <!-- Buttons injected here -->
-    </div>
-    <button onclick="showScreen('screen-student')" class="roblox-btn btn-gray fixed bottom-4 px-8 py-3 text-xl">Back</button>
-</div>
-
-<!-- SCREEN 4: READY SCREEN -->
-<div id="screen-ready" class="hidden-screen flex flex-col items-center justify-center w-full h-full p-4 fade-in">
-    <div class="roblox-box p-10 text-center max-w-md w-full pop-in">
-        <h2 id="ready-name" class="font-heading text-3xl mb-4 text-blue-600">Hello, Student</h2>
-        <h1 class="font-roblox text-4xl font-bold mb-8 text-black tracking-widest">READY?</h1>
-        <div id="countdown" class="font-roblox text-8xl text-red-500 font-bold animate-pulse">5</div>
-    </div>
-</div>
-
-<!-- SCREEN 5: GAMEPLAY -->
-<div id="screen-game" class="hidden-screen flex flex-col w-full h-full fade-in">
-    <!-- Top Bar (Stats & Timer) -->
-    <div class="bg-white border-b-4 border-black p-2 md:p-4 flex flex-wrap justify-between items-center shadow-md z-10 shrink-0">
-        <div class="flex space-x-2 md:space-x-4 text-xs md:text-base font-bold">
-            <div class="bg-blue-100 border-2 border-black rounded px-2 py-1">Score: <span id="stat-score" class="text-blue-600">0</span></div>
-            <div class="bg-purple-100 border-2 border-black rounded px-2 py-1">Acc: <span id="stat-acc" class="text-purple-600">0%</span></div>
-            <div class="bg-gray-200 border-2 border-black rounded px-2 py-1 hidden sm:block">Topic: <span id="stat-topic" class="text-black"></span></div>
-        </div>
-        <div class="flex items-center space-x-2 bg-gray-50 p-2 rounded-lg border border-black/10">
-            <span class="text-xs font-bold text-gray-500 mr-1">Voice:</span>
-            <button id="voice-neutral" onclick="setVoice('neutral')" class="text-xs px-2 py-1 bg-gray-200 rounded border border-black hover:bg-gray-300">Neutral</button>
-            <button id="voice-girl" onclick="setVoice('girl')" class="text-xs px-2 py-1 bg-pink-200 rounded border border-black hover:bg-pink-300">Girl</button>
-            <button id="voice-boy" onclick="setVoice('boy')" class="text-xs px-2 py-1 bg-blue-200 rounded border border-black hover:bg-blue-300">Boy</button>
-        </div>
-        <div class="bg-yellow-300 border-4 border-black rounded-lg px-4 py-1 text-xl md:text-2xl font-bold mt-2 sm:mt-0 font-roblox">
-            ⏳ <span id="timer-display">10:00</span>
-        </div>
-    </div>
-
-    <!-- Gameplay Area -->
-    <div class="flex-grow flex flex-col items-center justify-center p-2 min-h-[30%]">
-        <!-- Controls -->
-        <div class="flex space-x-4 mb-8">
-            <button onclick="playWordAudio(1.0)" class="roblox-btn btn-blue px-4 py-2 md:px-6 md:py-3 text-lg md:text-xl flex items-center">
-                🔊 Listen
-            </button>
-            <button onclick="playWordAudio(0.3)" class="roblox-btn btn-orange px-4 py-2 md:px-6 md:py-3 text-lg md:text-xl flex items-center">
-                🐢 Slow
-            </button>
-            <button onclick="skipWord()" class="roblox-btn btn-gray px-4 py-2 md:px-6 md:py-3 text-lg md:text-xl flex items-center">
-                ⏭ Skip
-            </button>
-        </div>
-
-        <!-- Answer Boxes (Per Letter) -->
-        <div id="answer-display" class="w-full flex items-center justify-center flex-wrap gap-2 px-2 min-h-[4rem]">
-            <!-- Letter boxes injected here -->
-        </div>
-    </div>
-
-    <!-- Feedback Overlay (Hidden by default) -->
-    <div id="feedback-overlay" class="feedback-overlay hidden-screen">
-        <div id="feedback-box" class="roblox-box p-8 text-center max-w-sm pop-in">
-            <h1 id="feedback-icon" class="text-6xl mb-4">✅</h1>
-            <h2 id="feedback-text" class="font-roblox text-3xl tracking-widest">CORRECT!</h2>
-        </div>
-    </div>
-
-    <!-- Keyboard Area -->
-    <div class="w-full bg-gray-200 border-t-4 border-black p-2 pb-6 md:p-4 shrink-0 font-keyboard">
-        <div class="max-w-3xl mx-auto flex flex-col space-y-2">
-            <!-- Row 1 -->
-            <div class="flex justify-center space-x-1 md:space-x-2">
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('q')">q</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('w')">w</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('e')">e</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('r')">r</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('t')">t</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('y')">y</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('u')">u</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('i')">i</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('o')">o</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('p')">p</button>
-            </div>
-            <!-- Row 2 -->
-            <div class="flex justify-center space-x-1 md:space-x-2 px-2 md:px-4">
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('a')">a</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('s')">s</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('d')">d</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('f')">f</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('g')">g</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('h')">h</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('j')">j</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('k')">k</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('l')">l</button>
-            </div>
-            <!-- Row 3 -->
-            <div class="flex justify-center space-x-1 md:space-x-2">
-                <button id="key-shift" class="key key-special flex-[1.5] min-h-[3rem] md:min-h-[4rem] text-sm md:text-base" onclick="toggleShift()">⇧</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('z')">z</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('x')">x</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('c')">c</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('v')">v</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('b')">b</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('n')">n</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('m')">m</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('-')">-</button>
-                <button class="key flex-1 min-h-[3rem] md:min-h-[4rem]" onclick="typeLetter('\'')">'</button>
-            </div>
-            <!-- Row 4 -->
-            <div class="flex justify-center space-x-2 mt-2">
-                <button class="key key-special flex-1 min-h-[3.5rem] md:min-h-[4rem]" onclick="backspace()">⌫</button>
-                <button class="key flex-[2] min-h-[3.5rem] md:min-h-[4rem]" onclick="typeLetter(' ')">SPACE</button>
-                <button class="key key-special flex-1 min-h-[3.5rem] md:min-h-[4rem]" onclick="clearInput()">CLR</button>
-                <button class="key key-enter flex-[1.5] min-h-[3.5rem] md:min-h-[4rem] text-lg" onclick="submitAnswer()">ENTER</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- SCREEN 6: END GAME -->
-<div id="screen-end" class="hidden-screen flex flex-col items-center justify-center w-full h-full p-4 fade-in overflow-y-auto">
-    <div class="roblox-box p-8 max-w-lg w-full pop-in bg-white/90">
-        <h1 class="font-roblox text-4xl text-center text-blue-600 mb-6 uppercase tracking-widest">Adventure Complete!</h1>
-        
-        <div class="bg-gray-100 border-2 border-black p-4 rounded-lg mb-6 text-lg font-bold space-y-2">
-            <p>Student: <span id="end-student" class="text-blue-600 font-normal"></span></p>
-            <p>Class: <span id="end-class" class="text-blue-600 font-normal"></span></p>
-            <p>Topic: <span id="end-topic" class="text-purple-600 font-normal"></span></p>
-            <hr class="border-black border-t-2">
-            <p class="text-2xl font-roblox mt-2">Final Score: <span id="end-score" class="text-green-600"></span></p>
-            <p>Correct Words: <span id="end-correct" class="text-green-600 font-normal"></span></p>
-            <p>Wrong Attempts: <span id="end-wrong" class="text-red-600 font-normal"></span></p>
-            <p>Words Completed: <span id="end-words" class="text-orange-600 font-normal"></span></p>
-        </div>
-
-        <div id="save-status" class="text-center font-bold text-lg mb-4 text-gray-600">
-            Saving results...
-        </div>
-
-        <button onclick="window.location.reload()" class="roblox-btn btn-blue text-2xl px-8 py-4 w-full font-roblox tracking-widest">PLAY AGAIN</button>
-    </div>
-</div>
-
-<script>
-    // ==========================================
-    // STATE VARIABLES
-    // ==========================================
-    let isPlaying = false;
-    let selectedClass = "";
-    let selectedStudent = null;
-    let selectedTopic = null;
-    let timeRemaining = GAME_TIME;
-    let timerInterval = null;
+<body class="w-screen h-screen m-0 p-0 text-white bg-app">
     
-    let score = 0;
-    let correct = 0;
-    let wrong = 0;
-    let skipped = 0;
-    let wordsAnswered = 0; // Keeping for logic compatibility
-    let totalTopicWords = 0; 
-    let currentWordList = [];
-    let currentWord = "";
-    let currentInput = "";
-    
-    // Keyboard State: 0 = lower, 1 = temp upper, 2 = caps lock
-    let shiftState = 0; 
-    let lastShiftTime = 0;
+    <div class="w-full h-full bg-overlay absolute inset-0 z-0"></div>
 
-    // Audio Context
-    let audioCtx = null;
+    <!-- Main Container -->
+    <div id="app-container" class="relative z-10 w-full h-full flex flex-col items-center justify-center p-4">
 
-    // ==========================================
-    // INITIALIZATION & SCREEN MANAGEMENT
-    // ==========================================
-    window.onload = () => {
-        window.speechSynthesis.getVoices();
-        const saved = localStorage.getItem('spellingGameState');
-        if (saved) {
-            document.getElementById('btn-resume').classList.remove('hidden');
+        <!-- ================= SCREEN 1: WELCOME ================= -->
+        <div id="screen-1" class="screen flex flex-col items-center justify-center w-full max-w-4xl space-y-12">
+            <h1 class="font-roblox-title text-5xl md:text-7xl text-center text-yellow-400 drop-shadow-[0_5px_5px_rgba(0,0,0,1)] stroke-black tracking-wider animate-float">
+                Inside the World of Spelling
+            </h1>
+            
+            <div class="flex flex-col space-y-6 w-full md:w-2/3">
+                <button onclick="selectSchool('Shulin')" class="btn-roblox bg-green-500 hover:bg-green-400 text-white py-6 px-8 rounded-2xl text-2xl md:text-3xl">
+                    Shulin Elementary School<br><span class="text-xl">臺南市七股區樹林國民小學</span>
+                </button>
+                <button onclick="selectSchool('Cigu')" class="btn-roblox bg-yellow-400 hover:bg-yellow-300 text-black py-6 px-8 rounded-2xl text-2xl md:text-3xl">
+                    Cigu Elementary School<br><span class="text-xl">臺南市七股區七股國民小學</span>
+                </button>
+            </div>
+            
+            <!-- Resume Game Banner -->
+            <div id="resume-banner" class="hidden flex-col items-center mt-4 p-4 bg-green-500 border-4 border-black rounded-xl shadow-[4px_4px_0_0_#000]">
+                <p class="text-xl font-bold mb-2">Saved game found!</p>
+                <button onclick="resumeGame()" class="btn-roblox bg-yellow-400 text-black py-2 px-6 rounded-lg">Resume</button>
+                <button onclick="clearSave()" class="text-sm mt-2 underline cursor-pointer">Start Fresh</button>
+            </div>
+        </div>
+
+        <!-- ================= SCREEN 2: SELECT CLASS ================= -->
+        <div id="screen-2" class="screen hidden-screen flex flex-col items-center w-full max-w-5xl h-full py-10">
+            <div class="w-full flex justify-between items-center mb-10 px-4">
+                <button onclick="nav('screen-1')" class="btn-roblox bg-gray-500 text-white py-2 px-6 rounded-xl text-xl">⬅ Back</button>
+                <h2 class="font-roblox-title text-4xl text-white drop-shadow-[0_4px_4px_rgba(0,0,0,1)]">Select Class</h2>
+                <div class="w-24"></div> 
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-6 w-full px-4 overflow-y-auto pb-10">
+                <!-- Class Buttons Injected Here -->
+            </div>
+        </div>
+
+        <!-- ================= SCREEN 3: SELECT STUDENT ================= -->
+        <div id="screen-3" class="screen hidden-screen flex flex-col items-center w-full max-w-6xl h-full py-10">
+            <div class="w-full flex justify-between items-center mb-8 px-4">
+                <button onclick="nav('screen-2')" class="btn-roblox bg-gray-500 text-white py-2 px-6 rounded-xl text-xl">⬅ Back</button>
+                <h2 class="font-roblox-title text-4xl text-yellow-300 drop-shadow-[0_4px_4px_rgba(0,0,0,1)]">Who are you?</h2>
+                <div class="w-24"></div>
+            </div>
+            
+            <div id="student-grid" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 w-full px-4 overflow-y-auto pb-20 custom-scrollbar content-start">
+                <!-- Student Buttons Injected Here -->
+            </div>
+        </div>
+
+        <!-- ================= SCREEN 4: SELECT TOPIC ================= -->
+        <div id="screen-4" class="screen hidden-screen flex flex-col items-center w-full max-w-6xl h-full py-10">
+            <div class="w-full flex justify-between items-center mb-8 px-4">
+                <button onclick="nav('screen-3')" class="btn-roblox bg-gray-500 text-white py-2 px-6 rounded-xl text-xl">⬅ Back</button>
+                <h2 class="font-roblox-title text-4xl text-green-400 drop-shadow-[0_4px_4px_rgba(0,0,0,1)]">Choose Topic</h2>
+                <div class="w-24"></div>
+            </div>
+            
+            <div id="topic-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl px-4 overflow-y-auto pb-20 content-start">
+                <!-- Topic Buttons Injected Here -->
+            </div>
+        </div>
+
+        <!-- ================= SCREEN 5: SELECT SUBTOPIC ================= -->
+        <div id="screen-5" class="screen hidden-screen flex flex-col items-center w-full max-w-6xl h-full py-10">
+            <div class="w-full flex justify-between items-center mb-8 px-4">
+                <button onclick="nav('screen-4')" class="btn-roblox bg-gray-500 text-white py-2 px-6 rounded-xl text-xl">⬅ Back</button>
+                <h2 id="subtopic-title" class="font-roblox-title text-4xl text-pink-400 drop-shadow-[0_4px_4px_rgba(0,0,0,1)]">Mode</h2>
+                <div class="w-24"></div>
+            </div>
+            
+            <div id="subtopic-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full px-4 content-start">
+                <!-- Subtopic Buttons Injected Here -->
+            </div>
+        </div>
+
+        <!-- ================= OVERLAY: READY COUNTDOWN ================= -->
+        <div id="screen-overlay" class="screen hidden-screen absolute inset-0 bg-black bg-opacity-90 z-50 flex flex-col items-center justify-center">
+            <h2 id="ready-text" class="font-roblox-title text-5xl md:text-7xl text-white mb-8 text-center px-4 leading-tight">
+                Hello, <span id="ready-student-name">Name</span>!<br>Are you ready?
+            </h2>
+            <div id="countdown-text" class="font-roblox-title text-9xl text-yellow-400 animate-pulse">5</div>
+        </div>
+
+        <!-- ================= SCREEN 6: GAMEPLAY ================= -->
+        <div id="screen-game" class="screen hidden-screen flex flex-col w-full h-full max-w-[1920px] mx-auto overflow-hidden">
+            
+            <!-- UPPER (10%) - Transparent -->
+            <div class="w-full h-[10%] bg-transparent flex flex-wrap items-center justify-between px-2 md:px-6 py-1">
+                <div class="flex items-center space-x-2 md:space-x-6 w-full md:w-auto justify-between md:justify-start">
+                    <div class="bg-white text-black font-bold px-3 py-1 md:px-4 md:py-2 rounded-xl border-2 border-black text-sm md:text-xl truncate max-w-[150px] md:max-w-xs" id="ui-student-name">Name</div>
+                    <div class="bg-yellow-400 text-black font-bold px-3 py-1 md:px-4 md:py-2 rounded-xl border-2 border-black text-sm md:text-xl min-w-0">Score: <span id="ui-score">0</span></div>
+                </div>
+                
+                <div class="flex items-center space-x-2 md:space-x-6 w-full md:w-auto mt-2 md:mt-0 justify-between md:justify-end">
+                    <div class="bg-purple-500 text-white font-bold px-3 py-1 md:px-4 md:py-2 rounded-xl border-2 border-black text-sm md:text-xl max-w-[350px] md:max-w-[500px] truncate" id="ui-topic">Topic</div>
+                    
+                    <button onclick="toggleVoice()" class="btn-roblox bg-pink-500 text-white px-3 py-1 md:px-4 md:py-2 rounded-xl text-sm md:text-xl flex items-center min-w-0">
+                        Voice: <span id="ui-voice" class="ml-1">Girl</span>
+                    </button>
+                    
+                    <div class="bg-red-500 text-white font-roblox-title px-3 py-1 md:px-4 md:py-2 rounded-xl border-2 border-black text-lg md:text-2xl flex items-center min-w-[80px] justify-center">
+                        ⏱ <span id="ui-timer" class="ml-1">08:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MID (50%) - Transparent -->
+            <div class="w-full h-[50%] flex flex-col md:flex-row bg-transparent relative overflow-hidden">
+                
+                <!-- Mid Left: Controls (Doubled Width: 180px to 220px) -->
+                <div class="w-full md:w-[180px] lg:w-[220px] h-auto md:h-full flex flex-row md:flex-col items-center justify-center p-1.5 md:gap-3 bg-transparent z-10 shrink-0">
+                    <button onclick="playWord(1)" class="btn-roblox w-[90%] bg-green-500 text-white py-2 md:py-3 rounded-2xl text-sm md:text-xl flex items-center justify-center min-w-0">
+                        <span class="text-xl md:text-2xl mr-1 md:mr-2">▶</span> <span class="truncate">Listen</span>
+                    </button>
+                    <button onclick="playWord(0.5)" class="btn-roblox w-[90%] bg-teal-500 text-white py-2 md:py-3 rounded-2xl text-sm md:text-xl flex items-center justify-center min-w-0">
+                        <span class="text-xl md:text-2xl mr-1 md:mr-2">🐢</span> <span class="truncate">Slow</span>
+                    </button>
+                    <button onclick="useHint()" class="btn-roblox w-[90%] bg-yellow-400 text-black py-2 md:py-3 rounded-2xl text-sm md:text-xl flex items-center justify-center relative group min-w-0">
+                        <span class="text-xl md:text-2xl mr-1 md:mr-2">💡</span> <span class="truncate">Hint</span>
+                        <span class="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-black shadow-[1px_1px_0_0_#000]">-3</span>
+                    </button>
+                    <button onclick="skipWord()" class="btn-roblox w-[90%] bg-orange-500 text-white py-2 md:py-3 rounded-2xl text-sm md:text-xl flex items-center justify-center min-w-0">
+                        <span class="text-xl md:text-2xl mr-1 md:mr-2">⏭</span> <span class="truncate">Skip</span>
+                    </button>
+                </div>
+
+                <!-- Mid Right: Answer Area -->
+                <div class="flex-1 h-full flex flex-col items-center justify-center p-4 md:p-8 bg-transparent relative">
+                    <div id="progress-indicator" class="absolute top-2 right-4 font-bold text-white bg-black/60 px-3 py-1 rounded-full border-2 border-black text-sm md:text-base">Word 1/10</div>
+                    
+                    <!-- Answer Boxes Container (Single horizontal line, flex-nowrap) -->
+                    <div id="answer-container" class="flex flex-nowrap items-center justify-center gap-1 md:gap-3 w-full px-2">
+                        <!-- Boxes dynamically loaded -->
+                    </div>
+
+                    <!-- Explicit Submit/Enter Button below the Answer Box -->
+                    <div id="submit-action" class="mt-8 z-10 w-full flex justify-center">
+                        <button onclick="handleKeyClick('ENTER')" class="btn-roblox bg-blue-600 text-white py-3 px-12 rounded-2xl text-xl md:text-3xl font-balsamiq tracking-wider hover:bg-blue-500">ENTER</button>
+                    </div>
+
+                    <!-- Post-wrong action buttons -->
+                    <div id="wrong-actions" class="hidden mt-8 flex gap-4 z-10 w-full max-w-lg justify-center px-4">
+                        <button onclick="clearInput()" class="btn-roblox flex-1 bg-blue-500 text-white py-4 px-4 rounded-2xl text-xl md:text-2xl truncate min-w-0">Try Again</button>
+                        <button onclick="skipWord()" class="btn-roblox flex-1 bg-orange-500 text-white py-4 px-4 rounded-2xl text-xl md:text-2xl truncate min-w-0">Skip Word</button>
+                    </div>
+
+                    <!-- Next button (hidden until correct) -->
+                    <div id="next-action" class="hidden mt-8 z-10">
+                        <button onclick="nextWord()" class="btn-roblox bg-green-500 text-white py-4 px-16 rounded-2xl text-2xl md:text-3xl animate-bounce">NEXT ➔</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTTOM (40%) - Virtual Keyboard (Opaque) -->
+            <div id="keyboard-container" class="w-full h-[40%] bg-gray-700 p-2 md:p-4 flex flex-col justify-end pb-4 md:pb-8 border-t-4 border-black relative">
+                
+                <!-- Keyboard Specific Feedback Overlay -->
+                <div id="feedback-overlay" class="absolute inset-0 z-30 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300 bg-black/45">
+                    <div id="feedback-msg" class="font-roblox-title text-5xl md:text-7xl px-12 py-6 rounded-3xl border-8 border-black transform -rotate-3 text-white shadow-[10px_10px_0_0_#000]"></div>
+                </div>
+
+                <div id="keyboard" class="w-full max-w-[1200px] mx-auto flex flex-col gap-1 md:gap-2 h-full z-10">
+                    <!-- Keyboard rows generated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SCREEN 7: RESULTS ================= -->
+        <div id="screen-result" class="screen hidden-screen flex flex-col items-center justify-center w-full max-w-2xl space-y-4 md:space-y-6 bg-white/95 p-4 md:p-6 rounded-3xl border-4 md:border-8 border-black shadow-[10px_10px_0_0_#000] relative max-h-[92vh] overflow-y-auto">
+            
+            <!-- Confetti Canvas -->
+            <canvas id="confetti-canvas" class="absolute inset-0 pointer-events-none z-0 rounded-3xl"></canvas>
+
+            <div class="relative z-10 flex flex-col items-center w-full text-center">
+                <div class="text-4xl md:text-5xl mb-1 animate-bounce">🎉🏆✨</div>
+                <h1 id="result-badge-title" class="font-roblox-title text-3xl md:text-5xl text-purple-600 drop-shadow-[0_3px_0_rgba(0,0,0,1)] tracking-wider">SPELLING CHAMP!</h1>
+                <p id="result-badge-subtitle" class="font-bold text-gray-500 text-sm md:text-base uppercase tracking-widest mt-1">Rank Unlocked!</p>
+            </div>
+            
+            <div class="relative z-10 flex flex-col items-center bg-yellow-100 p-4 md:p-6 rounded-2xl border-4 border-black w-full shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+                <h2 id="result-name" class="font-bold text-4xl text-black mb-4 text-center break-words">Student Name</h2>
+                
+                <div class="flex flex-col sm:flex-row gap-4 w-full max-w-sm justify-center items-center text-center">
+                    <div class="bg-yellow-400 p-4 rounded-xl border-4 border-black w-full shadow-[3px_3px_0_0_#000]">
+                        <div class="text-sm text-black font-bold uppercase tracking-wider">Final Score</div>
+                        <div id="result-score" class="text-4xl md:text-5xl font-roblox-title text-black mt-1">100</div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 text-sm md:text-lg text-gray-700 font-bold bg-white px-6 py-2 rounded-full border-2 md:border-4 border-black shadow-[2px_2px_0_0_#000]">
+                    Completed: <span id="result-words" class="text-blue-600 font-extrabold text-xl md:text-2xl">10</span> / 10 Words
+                </div>
+                <div id="sync-status" class="mt-3 text-xs text-gray-500 font-bold tracking-wide">Syncing data...</div>
+            </div>
+            
+            <div class="relative z-10 flex flex-col sm:flex-row gap-4 w-full justify-center mt-2">
+                <button onclick="nav('screen-4')" class="btn-roblox flex-1 max-w-[200px] bg-purple-500 text-white py-3 px-3 rounded-2xl text-lg md:text-xl flex items-center justify-center min-w-0">
+                    <span class="mr-1.5">📚</span> <span class="truncate">New Topic</span>
+                </button>
+                <button onclick="startGame()" class="btn-roblox flex-1 max-w-[200px] bg-green-500 text-white py-3 px-3 rounded-2xl text-lg md:text-xl flex items-center justify-center min-w-0">
+                    <span class="mr-1.5">🔄</span> <span class="truncate">Try Again</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Fullscreen Toggle -->
+        <button onclick="toggleFullScreen()" class="absolute top-4 right-4 z-50 bg-white border-2 border-black p-2 rounded-lg shadow-[2px_2px_0_0_#000] active:translate-y-1 active:shadow-none text-black hover:bg-gray-200">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+        </button>
+
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // --- NAME CAPITALIZATION FORMATTER (Only First Letter Capitalized) ---
+        function capitalizeName(name) {
+            if (!name) return "";
+            return name.trim().split(/\s+/).map(word => {
+                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+            }).join(' ');
         }
-    };
 
-    function showScreen(screenId) {
-        document.querySelectorAll('body > div').forEach(div => {
-            if (div.id.startsWith('screen-')) {
-                div.classList.add('hidden-screen');
+        // --- NATIVE SOUND FX GENERATOR (Tone substitute) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
             }
-        });
-        document.getElementById(screenId).classList.remove('hidden-screen');
-    }
-
-    function initAudio() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            const now = audioCtx.currentTime;
+            
+            if (type === 'tap') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(450, now);
+                osc.frequency.exponentialRampToValueAtTime(150, now + 0.08);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            } 
+            else if (type === 'countdown') {
+                // High-pitched retro countdown beep
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1000, now); 
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.start(now);
+                osc.stop(now + 0.15);
+            }
+            else if (type === 'correct') {
+                const notes = [523.25, 659.25, 783.99, 1046.50]; 
+                notes.forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+                    gain.gain.setValueAtTime(0, now);
+                    gain.gain.linearRampToValueAtTime(0.15, now + idx * 0.08 + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.15);
+                    osc.start(now + idx * 0.08);
+                    osc.stop(now + idx * 0.08 + 0.2);
+                });
+            } 
+            else if (type === 'wrong') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(140, now);
+                osc.frequency.setValueAtTime(100, now + 0.15);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                osc.start(now);
+                osc.stop(now + 0.35);
+            } 
+            else if (type === 'hint') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, now);
+                osc.frequency.exponentialRampToValueAtTime(1320, now + 0.18);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+                osc.start(now);
+                osc.stop(now + 0.18);
+            } 
+            else if (type === 'skip') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(580, now);
+                osc.frequency.linearRampToValueAtTime(280, now + 0.25);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            } 
+            else if (type === 'fanfare') {
+                const freqs = [261.63, 329.63, 392.00, 523.25];
+                freqs.forEach((freq) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now);
+                    osc.frequency.setValueAtTime(freq * 1.5, now + 0.2);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.7);
+                    osc.start(now);
+                    osc.stop(now + 0.7);
+                });
+            }
         }
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-    }
 
-    // ==========================================
-    // GAME FLOW
-    // ==========================================
-    function startGameFlow() {
-        initAudio();
-        localStorage.removeItem('spellingGameState');
-        showScreen('screen-class');
-    }
-
-    function selectClass(className) {
-        selectedClass = className;
-        const grade = className.charAt(0);
+        // --- GOOGLE SHEETS ENDPOINT ---
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx1UG9KCmnJb3Hp8s3EqEIeMZjD775LYkOKxfL4ZKbCRFnhZIs8Wq_zi5R5lSXyOKXp/exec';
         
-        const listContainer = document.getElementById('student-list');
-        listContainer.innerHTML = '';
+        const studentsData = {
+            Shulin: {
+                1: [{id: '00', name: 'Sample'}, {id: '01', name: 'Jack'}, {id: '02', name: 'Tin'}, {id: '03', name: 'Chi'}, {id: '04', name: 'Ryan'}, {id: '05', name: 'Drew'}, {id: '06', name: 'Jerry'}, {id: '07', name: 'Judy'}, {id: '08', name: 'Alen'}, {id: '09', name: 'Bob'}, {id: '10', name: 'Carl'}],
+                2: [{id: '00', name: 'Sample'}, {id: '01', name: 'Harry'}, {id: '02', name: 'Hugo'}, {id: '03', name: 'Yohan'}, {id: '04', name: 'Jenny'}, {id: '05', name: 'Gigi'}, {id: '06', name: 'Anna'}, {id: '07', name: 'Zoe'}, {id: '08', name: 'Vito'}, {id: '09', name: 'Nate'}, {id: '10', name: 'Owen'}],
+                3: [{id: '00', name: 'Sample'}, {id: '01', name: 'Chen'}, {id: '02', name: 'Jacob'}, {id: '03', name: 'Yoga'}, {id: '04', name: 'Jason'}, {id: '05', name: 'Andy'}, {id: '06', name: 'Louis'}, {id: '07', name: 'Jane'}, {id: '08', name: 'Cindy'}, {id: '09', name: 'Bella'}, {id: '10', name: 'Henin'}],
+                4: [{id: '00', name: 'Sample'}, {id: '01', name: 'Paul'}, {id: '02', name: 'Vincent'}, {id: '03', name: 'Brian'}, {id: '04', name: 'Alice'}, {id: '05', name: 'Emma'}, {id: '06', name: 'Jean'}, {id: '07', name: 'Coco'}, {id: '08', name: 'Mika'}, {id: '09', name: 'Leo'}, {id: '10', name: 'Zac'}],
+                5: [{id: '00', name: 'Sample'}, {id: '01', name: 'Eason'}, {id: '02', name: 'Sean'}, {id: '03', name: 'Dan'}, {id: '04', name: 'Ray'}, {id: '05', name: 'Ian'}, {id: '06', name: 'Eva'}, {id: '07', name: 'Fay'}, {id: '08', name: 'Gail'}, {id: '09', name: 'Hope'}, {id: '10', name: 'Joy'}],
+                6: [{id: '00', name: 'Sample'}, {id: '01', name: 'Leo'}, {id: '02', name: 'Rody'}, {id: '03', name: 'Daren'}, {id: '04', name: 'Ken'}, {id: '05', name: 'Rex'}, {id: '06', name: 'Tim'}, {id: '07', name: 'Joy'}, {id: '08', name: 'Mae'}, {id: '09', name: 'Ned'}, {id: '10', name: 'Pam'}]
+            },
+            Cigu: {
+                1: [ { "id": "00", "name": "Sample" }, { "id": "01", "name": "Hank" }, { "id": "02", "name": "Jim" }, { "id": "03", "name": "Vince" }, { "id": "04", "name": "Anders" }, { "id": "05", "name": "Joe" }, { "id": "06", "name": "Leo" }, { "id": "07", "name": "Poli" }, { "id": "08", "name": "Ella" }, { "id": "09", "name": "Lucy" }, { "id": "10", "name": "Annie" }, { "id": "11", "name": "Nina" }, { "id": "12", "name": "Linda" }, { "id": "13", "name": "Elsa" } ],
+                2: [ { "id": "00", "name": "Sample" }, { "id": "01", "name": "Eric" }, { "id": "02", "name": "William" }, { "id": "03", "name": "Kaybee" }, { "id": "04", "name": "Marvin" }, { "id": "05", "name": "Eva" }, { "id": "06", "name": "Ruby" }, { "id": "07", "name": "Jaycee" }, { "id": "08", "name": "Minnie" }, { "id": "09", "name": "Tia" } ],
+                3: [ { "id": "00", "name": "Sample" }, { "id": "01", "name": "Tim" }, { "id": "02", "name": "Owen" }, { "id": "03", "name": "Patrick" }, { "id": "04", "name": "Jimmy" }, { "id": "05", "name": "Rain" }, { "id": "06", "name": "Angela" }, { "id": "07", "name": "Ollie" }, { "id": "08", "name": "Dora" }, { "id": "09", "name": "Kiki" }, { "id": "10", "name": "Emily" }, { "id": "11", "name": "Anna" }, { "id": "12", "name": "Honey" }, { "id": "13", "name": "Tina" }, { "id": "14", "name": "Tara" }, { "id": "15", "name": "Joan" } ],
+                4: [ { "id": "00", "name": "Sample" }, { "id": "01", "name": "Frank" }, { "id": "02", "name": "James" }, { "id": "03", "name": "Shawn" }, { "id": "04", "name": "Jason" }, { "id": "05", "name": "Bob" }, { "id": "06", "name": "Summer" }, { "id": "07", "name": "Tim" }, { "id": "08", "name": "Kai" }, { "id": "09", "name": "Jay" }, { "id": "10", "name": "Lily" }, { "id": "11", "name": "Judy" }, { "id": "12", "name": "Gigi" }, { "id": "13", "name": "Sally" }, { "id": "14", "name": "Angel" }, { "id": "15", "name": "Hana" }, { "id": "16", "name": "Cynthia" }, { "id": "17", "name": "Ping" }, { "id": "18", "name": "Emma" }, { "id": "19", "name": "Liam" } ],
+                5: [ { "id": "00", "name": "Sample" }, { "id": "01", "name": "Jack" }, { "id": "02", "name": "Alfred" }, { "id": "03", "name": "Eason" }, { "id": "04", "name": "Quentin" }, { "id": "05", "name": "Aron" }, { "id": "06", "name": "Jason" }, { "id": "07", "name": "Lucas" }, { "id": "08", "name": "Hank" }, { "id": "09", "name": "Bernie" }, { "id": "10", "name": "Gary" }, { "id": "11", "name": "Anna" }, { "id": "12", "name": "Ling" }, { "id": "13", "name": "Ronnie" }, { "id": "14", "name": "Debbie" }, { "id": "15", "name": "Una" }, { "id": "16", "name": "Bunny" }, { "id": "17", "name": "Cynthia" }, { "id": "18", "name": "Jenny" }, { "id": "19", "name": "Emily" }, { "id": "20", "name": "Amanda" }, { "id": "21", "name": "Zoe" }, { "id": "22", "name": "Frank" }, { "id": "23", "name": "Luke" } ],
+                6: [ { "id": "00", "name": "Sample" }, { "id": "01", "name": "Ben" }, { "id": "02", "name": "Tim" }, { "id": "03", "name": "Shawn" }, { "id": "04", "name": "Nick" }, { "id": "05", "name": "Alex" }, { "id": "06", "name": "Tim" }, { "id": "07", "name": "Tom" }, { "id": "08", "name": "Andy" }, { "id": "09", "name": "Jack" }, { "id": "10", "name": "Jake" }, { "id": "11", "name": "Alan" }, { "id": "12", "name": "Alan" }, { "id": "13", "name": "Kevin" }, { "id": "14", "name": "Tim" }, { "id": "15", "name": "Jim" }, { "id": "16", "name": "Danny" }, { "id": "17", "name": "Helen" }, { "id": "18", "name": "Kara" }, { "id": "19", "name": "Lily" }, { "id": "20", "name": "Stacy" }, { "id": "21", "name": "Tina" }, { "id": "22", "name": "Tina" }, { "id": "23", "name": "Emily" }, { "id": "24", "name": "Bella" }, { "id": "25", "name": "Kelly" }, { "id": "26", "name": "Wendy" }, { "id": "27", "name": "Mia" } ]
+            }
+        };
 
-        if (students[grade]) {
-            students[grade].forEach(student => {
+        const phonicsSubtopicsData = [
+            {
+                id: 'phonics1',
+                name: 'Alphabet',
+                assignedSchool: ['all'],
+                assignedClasses: ['all'],
+                words: ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
+            },
+            {
+                id: 'phonics2',
+                name: '2-Letter',
+                assignedSchool: ['all'],
+                assignedClasses: ['2A', '3A','4A','5A','6A'],
+                words: ["am","an","at","as","ax","if","in","it","of","on","or","ox","up","us"]
+            },
+            {
+                id: 'phonics3',
+                name: '3-Letters',
+                assignedSchool: ['all'],
+                assignedClasses: ['2A', '3A','4A','5A', '6A'],
+                words: ["bat","cat","dad","fan","hat","jam","man","map","nap","pan","rat","sad","tag","van","wag","zap","bed","beg","bet","den","fed","get","hen","jet","leg","men","net","pen","pet","red","set","wet","big","bin","dig","fin","fit","hit","lip","mix","pig","pin","rip","sit","six","tip","wig","win","zip","box","cob","cod","cop","dog","dot","fog","fox","hop","hot","jog","log","mop","pot","rod","top","bug","bun","bus","cub","cup","cut","fun","gum","hug","hut","jug","mud","nut","pup","rug","sun","tub"]
+            },
+            {
+                id: 'phonics4',
+                name: '4-Letter',
+                assignedSchool: ['all'],
+                assignedClasses: ['4A','5A', '6A'],
+                words: ["bend","best","camp","fast","hand","land","milk","nest","park","sand","tent","wind","fish","frog","jump","lamp","mask","rock","sock","ring","sing","king","duck","lock","back","pack","kick","pick","wish","dish","come","from","help","play","look","book","read","good","want","must","with","your"]
+            },
+            {
+                id: 'phonics5',
+                name: '5-Letter',
+                assignedSchool: ['all'],
+                assignedClasses: ['5A','6A'],
+                words: ["apple","bread","chair","clean","cloud","drink","grass","green","happy","house","light","plant","smile","snake","spoon","stone","sweet","train","water","white","black","brown","shirt","clock","brush","beach","camel","dance","earth","fruit","glass","heart","jelly","lemon","magic","music","paper","queen","robot","sheep","table","tiger","uncle","zebra"]
+            }
+        ];
+
+        const lessonsData = [
+            { id: 'food', name: '🍔 Food', assignedSchool: ['Shulin'], assignedClasses: ['4A', '5A'], words: ["egg", "ham", "jam", "pie", "tea", "bun", "nut", "cake", "fish", "rice", "milk", "pear", "beef", "corn", "soup", "apple", "bread", "grape", "lemon", "mango", "peach", "salad", "pizza", "banana", "carrot", "cookie", "cheese", "orange", "tomato", "potato", "noodle"] },
+            { id: 'animals', name: '🦁 Animals', assignedSchool: ['all'], assignedClasses: ['all'], words: ["cat", "dog", "pig", "ant", "bee", "fox", "owl", "bear", "bird", "duck", "frog", "goat", "lion", "fish", "wolf", "camel", "horse", "mouse", "sheep", "tiger", "zebra", "whale", "snake", "rabbit", "monkey", "turkey", "donkey", "parrot", "spider", "shrimp"] },
+            { id: 'places', name: '🏰 Places', assignedSchool: ['all'], assignedClasses: ['5A'], words: ["gym", "zoo", "park", "bank", "farm", "shop", "home", "lake", "road", "beach", "hotel", "store", "house", "river", "school", "garden", "market", "museum", "office"] },
+            { id: 'transportation', name: '🚗 Transport', assignedSchool: ['all'], assignedClasses: ['5A'], words: ["bus", "car", "van", "boat", "bike", "jeep", "train", "truck", "plane", "subway", "scooter"] },
+            { id: 'school', name: '📚 School', assignedSchool: ['Cigu'], assignedClasses: ['all'], words: ["pen", "bag", "map", "book", "desk", "lamp", "ruler", "paper", "chair", "clock", "eraser", "marker", "pencil"] },
+            { id: 'nature', name: '🌳 Nature', assignedSchool: ['all'], assignedClasses: ['5A'], words: ["sun", "sky", "sea", "tree", "star", "rain", "rock", "cloud", "grass", "plant", "earth", "flower", "forest", "winter", "spring"] },
+            { id: 'family', name: '👨‍👩‍👧 Family', assignedSchool: ['all'], assignedClasses: ['all'], words: ["mom", "dad", "son", "aunt", "baby", "brother", "sister", "family", "father", "mother", "cousin"] },
+            { id: 'clothes', name: '👕 Clothes', assignedSchool: ['all'], assignedClasses: ['5A'], words: ["cap", "hat", "vest", "coat", "dress", "shirt", "pants", "skirt", "socks", "shoes", "jacket", "sweater"] },
+            { id: 'jobs', name: '👨‍🍳 Jobs', assignedSchool: ['all'], assignedClasses: ['all'], words: ["chef", "cook", "nurse", "pilot", "doctor", "farmer", "police", "teacher", "driver", "singer"] },
+            { id: 'sports', name: '⚽ Sports', assignedSchool: ['all'], assignedClasses: ['all'], words: ["run", "hop", "jump", "walk", "swim", "dance", "skate", "soccer", "tennis", "baseball"] },
+            { id: 'colors', name: '🎨 Colors', assignedSchool: ['all'], assignedClasses: ['all'], words: ["red", "tan", "blue", "pink", "gray", "black", "brown", "green", "white", "yellow", "purple", "orange"] },
+            { id: 'weather', name: '🌤 Weather', assignedSchool: ['all'], assignedClasses: ['all'], words: ["sun", "wind", "rain", "hot", "cold", "warm", "cloudy", "snowy", "stormy", "sunny", "rainy"] }
+        ];
+
+        let state = {
+            school: '',
+            classGrade: '', 
+            studentId: '',
+            studentName: '',
+            topicId: '',
+            topicName: '',
+            subtopic: '',
+            targetWords: [],
+            currentWordIndex: 0,
+            currentWord: '',
+            inputLetters: [], 
+            hintLocked: [], // Tracks which letters are locked from hints
+            cursorIndex: 0, 
+            score: 0,
+            attempts: 0,
+            correctAnswers: 0,
+            timer: 480, 
+            timerInterval: null,
+            voiceGender: 'female',
+            gameActive: false,
+            shiftState: 0, 
+            disabledKeys: []
+        };
+
+        const keyboardLayout = [
+            ['q','w','e','r','t','y','u','i','o','p'],
+            ['a','s','d','f','g','h','j','k','l'],
+            ['SHIFT','z','x','c','v','b','n','m','-','\''],
+            ['CLEAR','SPACE','BACKSPACE','ENTER']
+        ];
+        const vowels = ['a','e','i','o','u'];
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initVoices();
+            checkSavedGame();
+            renderKeyboard();
+            setupPhysicalKeyboard();
+        });
+
+        // TTS Init
+        let synth = window.speechSynthesis;
+        let voices = [];
+        function initVoices() {
+            const populate = () => { voices = synth.getVoices(); };
+            populate();
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = populate;
+            }
+        }
+
+        // --- NAVIGATION & UI FLOW ---
+        function nav(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden-screen'));
+            document.getElementById(screenId).classList.remove('hidden-screen');
+            stopConfetti(); 
+        }
+
+        function selectSchool(schoolName) {
+            playSound('tap');
+            state.school = schoolName;
+            renderClasses();
+            nav('screen-2');
+            saveState();
+        }
+
+        function renderClasses() {
+            const container = document.getElementById('screen-2').querySelector('.grid');
+            container.innerHTML = '';
+            for (let i = 1; i <= 6; i++) {
                 const btn = document.createElement('button');
-                btn.className = 'roblox-btn btn-blue text-xl py-4 font-bold';
-                btn.textContent = `${student.id}-${student.name}`;
-                btn.onclick = () => selectStudent(student);
-                listContainer.appendChild(btn);
+                btn.className = 'btn-roblox bg-blue-500 hover:bg-blue-400 text-white py-8 rounded-2xl text-3xl md:text-4xl min-w-0';
+                btn.innerText = `${i}A`; 
+                btn.onclick = () => { playSound('tap'); selectClass(i); };
+                container.appendChild(btn);
+            }
+        }
+
+        function selectClass(grade) {
+            state.classGrade = grade.toString();
+            renderStudents();
+            nav('screen-3');
+            saveState();
+        }
+
+        function renderStudents() {
+            const container = document.getElementById('student-grid');
+            container.innerHTML = '';
+            const studentsList = studentsData[state.school][state.classGrade] || [];
+            
+            studentsList.forEach(student => {
+                const formattedName = capitalizeName(student.name);
+                const btn = document.createElement('button');
+                btn.className = 'btn-roblox bg-green-500 hover:bg-green-400 text-white py-4 rounded-xl text-xl md:text-2xl truncate px-2 min-w-0';
+                btn.innerText = `${student.id}. ${formattedName}`;
+                btn.onclick = () => { playSound('tap'); selectStudent(student.id, formattedName); };
+                container.appendChild(btn);
             });
         }
-        showScreen('screen-student');
-    }
 
-    function selectStudent(student) {
-        selectedStudent = student;
-        renderTopics();
-    }
+        function selectStudent(id, name) {
+            state.studentId = id;
+            state.studentName = capitalizeName(name);
+            renderTopics();
+            nav('screen-4');
+            saveState();
+        }
 
-    function renderTopics() {
-        const listContainer = document.getElementById('topic-list');
-        listContainer.innerHTML = '';
+        function isSchoolAssigned(assignedSchool) {
+            if (!assignedSchool) return true; 
+            return assignedSchool.map(s => s.toLowerCase()).includes('all') || 
+                   assignedSchool.map(s => s.toLowerCase()).includes(state.school.toLowerCase());
+        }
 
-        topics.forEach(topic => {
-            if (topic.assignedClasses.includes('all') || topic.assignedClasses.includes(selectedClass)) {
+        function isClassAssigned(assignedClasses) {
+            if (!assignedClasses) return false;
+            if (assignedClasses.map(c => c.toLowerCase()).includes('all')) return true;
+            const currentClassA = state.classGrade + 'A'; 
+            return assignedClasses.includes(state.classGrade) || assignedClasses.includes(currentClassA);
+        }
+
+        function renderTopics() {
+            const container = document.getElementById('topic-grid');
+            container.innerHTML = '';
+            
+            // Check if any Phonics subtopic is assigned to this school and class
+            const hasPhonics = phonicsSubtopicsData.some(p => isSchoolAssigned(p.assignedSchool) && isClassAssigned(p.assignedClasses));
+            
+            // Check if any Lessons topic is assigned to this school and class
+            const hasLessons = lessonsData.some(l => isSchoolAssigned(l.assignedSchool) && isClassAssigned(l.assignedClasses));
+            
+            if (hasPhonics) {
+                const phonicsBtn = document.createElement('button');
+                phonicsBtn.className = 'btn-roblox bg-purple-500 hover:bg-purple-400 text-white py-12 rounded-xl text-3xl md:text-4xl min-w-0';
+                phonicsBtn.innerText = '🔤 Phonics';
+                phonicsBtn.onclick = () => { 
+                    playSound('tap');
+                    state.topicId = 'phonics'; 
+                    state.topicName = 'Phonics'; 
+                    document.getElementById('subtopic-title').innerText = 'Phonics Mode';
+                    renderPhonicsSubtopics(); 
+                    nav('screen-5'); 
+                };
+                container.appendChild(phonicsBtn);
+            }
+
+            if (hasLessons) {
+                const lessonsBtn = document.createElement('button');
+                lessonsBtn.className = 'btn-roblox bg-orange-500 hover:bg-orange-400 text-white py-12 rounded-xl text-3xl md:text-4xl min-w-0';
+                lessonsBtn.innerText = '📚 Lessons';
+                lessonsBtn.onclick = () => { 
+                    playSound('tap');
+                    state.topicId = 'lessons'; 
+                    state.topicName = 'Lessons'; 
+                    document.getElementById('subtopic-title').innerText = 'Lessons Mode';
+                    renderLessonsSubtopics(); 
+                    nav('screen-5'); 
+                };
+                container.appendChild(lessonsBtn);
+            }
+        }
+
+        function renderPhonicsSubtopics() {
+            const container = document.getElementById('subtopic-grid');
+            container.innerHTML = '';
+            
+            const filtered = phonicsSubtopicsData.filter(p => isSchoolAssigned(p.assignedSchool) && isClassAssigned(p.assignedClasses));
+            
+            const colors = {
+                'phonics1': 'bg-pink-500 text-white',
+                'phonics2': 'bg-red-500 text-white',
+                'phonics3': 'bg-blue-500 text-white',
+                'phonics4': 'bg-green-500 text-white',
+                'phonics5': 'bg-yellow-400 text-black'
+            };
+
+            filtered.forEach(cat => {
                 const btn = document.createElement('button');
-                btn.className = 'roblox-btn btn-purple text-2xl py-6 font-bold';
-                btn.textContent = topic.name;
-                btn.onclick = () => selectTopic(topic);
-                listContainer.appendChild(btn);
+                btn.className = `btn-roblox ${colors[cat.id] || 'bg-blue-500 text-white'} py-8 rounded-2xl text-2xl md:text-3xl min-w-0`;
+                btn.innerText = cat.name;
+                btn.onclick = () => {
+                    playSound('tap');
+                    state.subtopic = cat.name;
+                    prepareGameWords(cat.words);
+                    startReadySequence();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function renderLessonsSubtopics() {
+            const container = document.getElementById('subtopic-grid');
+            container.innerHTML = '';
+            
+            lessonsData.forEach(topic => {
+                if (isSchoolAssigned(topic.assignedSchool) && isClassAssigned(topic.assignedClasses)) {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn-roblox bg-blue-500 hover:bg-blue-400 text-white py-6 rounded-xl text-xl md:text-2xl min-w-0 truncate';
+                    btn.innerText = topic.name;
+                    btn.onclick = () => {
+                        playSound('tap');
+                        state.subtopic = topic.name;
+                        prepareGameWords(topic.words);
+                        startReadySequence();
+                    };
+                    container.appendChild(btn);
+                }
+            });
+        }
+
+        function prepareGameWords(wordPool) {
+            let shuffled = [...wordPool].sort(() => 0.5 - Math.random());
+            state.targetWords = shuffled.slice(0, 10);
+            
+            state.currentWordIndex = 0;
+            state.score = 0;
+            state.attempts = 0;
+            state.correctAnswers = 0;
+            state.timer = 480;
+            state.gameActive = false;
+            saveState();
+        }
+
+        function startReadySequence() {
+            document.getElementById('ready-student-name').innerText = capitalizeName(state.studentName);
+            nav('screen-overlay');
+            
+            let count = 5;
+            const countEl = document.getElementById('countdown-text');
+            countEl.innerText = count;
+            playSound('countdown');
+            
+            const interval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    playSound('countdown');
+                    countEl.innerText = count;
+                } else {
+                    clearInterval(interval);
+                    startGame();
+                }
+            }, 1000);
+        }
+
+        // --- GAMEPLAY LOOP LOGIC ---
+        function startGame() {
+            if(state.targetWords.length === 0) { nav('screen-4'); return; }
+            
+            if(state.currentWordIndex >= 10) {
+                state.currentWordIndex = 0;
+                state.score = 0;
+                state.attempts = 0;
+                state.correctAnswers = 0;
+                state.timer = 480;
+                state.targetWords.sort(() => 0.5 - Math.random());
             }
-        });
-        showScreen('screen-topics');
-    }
 
-    function selectTopic(topic) {
-        selectedTopic = topic;
-        document.getElementById('ready-name').textContent = `Hello, ${selectedStudent.name}`;
-        showScreen('screen-ready');
-        startCountdown();
-    }
+            state.gameActive = true;
+            nav('screen-game');
+            updateTopUI();
+            
+            clearInterval(state.timerInterval);
+            state.timerInterval = setInterval(updateTimer, 1000);
+            
+            loadNextWordUI();
+            saveState();
+        }
 
-    function startCountdown() {
-        let count = 5;
-        const countDisplay = document.getElementById('countdown');
-        countDisplay.textContent = count;
-        
-        const tick = setInterval(() => {
-            count--;
-            if (count > 0) {
-                countDisplay.textContent = count;
-                playBeep(400, 'sine', 0.1);
-            } else {
-                clearInterval(tick);
-                playBeep(800, 'sine', 0.3);
-                prepareGame();
+        function updateTopUI() {
+            document.getElementById('ui-student-name').innerText = capitalizeName(state.studentName);
+            document.getElementById('ui-score').innerText = state.score;
+            document.getElementById('ui-topic').innerText = state.topicName + (state.subtopic ? ` (${state.subtopic})` : '');
+        }
+
+        function updateTimer() {
+            if (!state.gameActive) return;
+            state.timer--;
+            
+            const mins = Math.floor(state.timer / 60);
+            const secs = state.timer % 60;
+            document.getElementById('ui-timer').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            
+            if(state.timer % 10 === 0) saveState();
+
+            if (state.timer <= 0) {
+                endGame();
             }
-        }, 1000);
-    }
-
-    function prepareGame() {
-        // Enforce Grade Constraints
-        const grade = selectedClass.charAt(0);
-        let maxLength = 6;
-        if (grade === '3') maxLength = 3;
-        else if (grade === '4') maxLength = 4;
-        else if (grade === '5') maxLength = 5;
-        else if (grade === '6') maxLength = 6;
-
-        let baseList = selectedTopic.words.filter(w => {
-            // Remove non-letters (like spaces) for exact letter count logic
-            const letterCount = w.replace(/[^a-zA-Z]/g, '').length;
-            return letterCount >= 2 && letterCount <= maxLength;
-        });
-
-        if (baseList.length === 0) {
-            baseList = ['cat']; // Safe fallback if filtering removes all words
         }
 
-        totalTopicWords = baseList.length;
-        currentWordList = shuffleArray(baseList);
-        
-        // Reset stats
-        timeRemaining = GAME_TIME;
-        score = 0; correct = 0; wrong = 0; wordsAnswered = 0;
-        document.getElementById('stat-topic').textContent = selectedTopic.name;
-        
-        startGameplay();
-    }
-
-    function resumeGame() {
-        initAudio();
-        const saved = JSON.parse(localStorage.getItem('spellingGameState'));
-        if (saved) {
-            selectedClass = saved.class;
-            selectedStudent = saved.student;
-            selectedTopic = saved.selectedTopic;
-            timeRemaining = saved.timeRemaining;
-            score = saved.score;
-            correct = saved.correct;
-            wrong = saved.wrong;
-            wordsAnswered = saved.wordsAnswered;
-            totalTopicWords = saved.totalTopicWords;
-            currentWordList = saved.currentWordList;
-            currentWord = saved.currentWord;
+        function loadNextWordUI() {
+            state.currentWord = state.targetWords[state.currentWordIndex];
             
-            document.getElementById('stat-topic').textContent = selectedTopic.name;
-            updateStatsUI();
-            startGameplay(true);
-        }
-    }
-
-    function startGameplay(isResume = false) {
-        isPlaying = true;
-        showScreen('screen-game');
-        
-        timerInterval = setInterval(updateTimer, 1000);
-        updateTimerDisplay();
-
-        if (!isResume || !currentWord) {
-            pickNextWord();
-        } else {
-            clearInput();
-            setTimeout(() => playWordAudio(1.0), 500);
-        }
-        
-        updateKeyboardDisplay();
-    }
-
-    // ==========================================
-    // GAME MECHANICS
-    // ==========================================
-    function pickNextWord() {
-        if (currentWordList.length === 0) {
-            endGame();
-            return;
-        }
-        currentWord = currentWordList.pop();
-        clearInput();
-        saveGameState();
-        
-        setTimeout(() => playWordAudio(1.0), 500);
-    }
-
-    function skipWord() {
-        skipped++;
-        updateStatsUI();
-        showFeedback(false, currentWord, true); // True to show answer
-        setTimeout(() => {
-            document.getElementById('feedback-overlay').classList.add('hidden-screen');
-            pickNextWord();
-        }, 1500);
-    }
-
-    function submitAnswer() {
-        if (currentInput.length === 0 || !currentWord) return;
-
-        const isCorrect = currentInput.toLowerCase() === currentWord.toLowerCase();
-
-        if (isCorrect) {
-            correct++;
-            updateInputDisplay(true); 
-            showFeedback(true);
-        } else {
-            wrong++;
-            showFeedback(false, currentWord, false);
-        }
-        
-        updateStatsUI();
-        saveGameState();
-        
-        setTimeout(() => {
-            document.getElementById('feedback-overlay').classList.add('hidden-screen');
-            if (isCorrect) pickNextWord();
-        }, 1500);
-    }
-
-    function submitAnswer() {
-        if (currentInput.length === 0 || !currentWord) return;
-
-        const isCorrect = currentInput.toLowerCase() === currentWord.toLowerCase();
-
-        if (isCorrect) {
-            wordsAnswered++;
-            score += currentWord.length;
-            correct++;
-            updateInputDisplay(true); // Force combined boxes view
-            showFeedback(true);
-            updateStatsUI();
-            saveGameState();
+            state.inputLetters = Array(state.currentWord.length).fill('');
+            state.hintLocked = Array(state.currentWord.length).fill(false); // Tracking hint-locked blocks
+            state.cursorIndex = 0;
+            state.disabledKeys = [];
             
-            setTimeout(() => {
-                document.getElementById('feedback-overlay').classList.add('hidden-screen');
-                pickNextWord();
-            }, 1500);
-
-        } else {
-            score -= 1;
-            wrong++;
-            showFeedback(false, currentWord);
-            updateStatsUI();
-            saveGameState();
+            document.getElementById('progress-indicator').innerText = `Word ${state.currentWordIndex + 1}/10`;
+            document.getElementById('wrong-actions').classList.add('hidden');
+            document.getElementById('next-action').classList.add('hidden');
+            document.getElementById('submit-action').classList.remove('hidden');
             
-            setTimeout(() => {
-                document.getElementById('feedback-overlay').classList.add('hidden-screen');
-            }, 1500);
-        }
-    }
-
-    // ==========================================
-    // INPUT & KEYBOARD LOGIC
-    // ==========================================
-    function typeLetter(letter) {
-        if (currentInput.length >= currentWord.length) return; // Prevent over-typing
-        
-        let charToAdd = letter;
-        if (letter !== ' ' && (shiftState === 1 || shiftState === 2)) {
-            charToAdd = letter.toUpperCase();
-        }
-        
-        currentInput += charToAdd;
-        updateInputDisplay();
-
-        if (shiftState === 1) {
-            shiftState = 0;
-            updateKeyboardDisplay();
-        }
-    }
-
-    function backspace() {
-        currentInput = currentInput.slice(0, -1);
-        updateInputDisplay();
-    }
-
-    function clearInput() {
-        currentInput = "";
-        updateInputDisplay();
-    }
-
-    function toggleShift() {
-        const now = Date.now();
-        if (now - lastShiftTime < 400) {
-            shiftState = 2; // Caps Lock
-        } else {
-            if (shiftState === 0) shiftState = 1;
-            else if (shiftState === 1) shiftState = 0;
-            else if (shiftState === 2) shiftState = 0;
-        }
-        lastShiftTime = now;
-        updateKeyboardDisplay();
-    }
-
-    function updateInputDisplay(forceCombine = false) {
-        const container = document.getElementById('answer-display');
-        container.innerHTML = '';
-        
-        // Combine only when forceCombine is true (triggered when Enter is clicked and answer is correct)
-        const isCorrect = forceCombine;
-
-        // Success State -> Combine into one big block
-        if (isCorrect) {
-            const box = document.createElement('div');
-            // Keep original case as typed
-            box.className = 'roblox-box bg-green-400 text-black px-8 py-4 flex items-center justify-center text-4xl md:text-6xl font-bold transition-all duration-300 transform scale-110 shadow-lg';
-            box.innerHTML = currentInput.replace(/ /g, '&nbsp;'); // preserve spaces visibly
-            container.appendChild(box);
-            return;
-        }
-
-        // Typing State -> Individual letter boxes
-        for (let i = 0; i < currentWord.length; i++) {
-            const box = document.createElement('div');
+            renderAnswerBoxes();
+            renderKeyboard(); 
+            updateTopUI();
             
-            if (currentWord[i] === ' ') {
-                // Gap for compound words
-                box.className = 'w-4 md:w-8 h-12 bg-transparent';
-            } else {
-                // Keep original case as typed, no 'uppercase' class
-                box.className = 'roblox-box bg-yellow-200 text-black w-10 h-14 md:w-16 md:h-20 flex items-center justify-center text-3xl md:text-5xl font-bold transition-all';
+            setTimeout(() => playWord(1), 500);
+            saveState();
+        }
+
+        function renderAnswerBoxes() {
+            const container = document.getElementById('answer-container');
+            container.innerHTML = '';
+            
+            const len = state.currentWord.length;
+            let textSize = 'text-3xl md:text-5xl lg:text-7xl';
+            if (len > 7) textSize = 'text-2xl md:text-4xl lg:text-5xl';
+            if (len > 10) textSize = 'text-xl md:text-3xl lg:text-4xl';
+
+            for (let i = 0; i < len; i++) {
+                const box = document.createElement('div');
+                box.className = `flex-1 min-w-[20px] max-w-[80px] md:max-w-[100px] aspect-[4/5] flex items-center justify-center font-bold rounded-xl border-4 border-black box-border shadow-[4px_4px_0_0_#000] bg-white text-black ${textSize} answer-box transition-all duration-300`;
+                box.id = `box-${i}`;
+                
+                box.onclick = () => {
+                    if (!state.gameActive) return;
+                    if (state.hintLocked[i]) return; // locked letter boxes bypass manual selection clicks
+                    playSound('tap');
+                    state.cursorIndex = i;
+                    updateBoxContent();
+                };
+                
+                container.appendChild(box);
             }
-            
-            if (i < currentInput.length) {
-                if (currentInput[i] !== ' ') {
-                    box.textContent = currentInput[i];
+            updateBoxContent();
+        }
+
+        function updateBoxContent() {
+            const len = state.currentWord.length;
+            for (let i = 0; i < len; i++) {
+                const box = document.getElementById(`box-${i}`);
+                if(box) {
+                    box.innerText = state.inputLetters[i] || '';
+                    if (i === state.cursorIndex && state.gameActive) {
+                        box.classList.add('active-cursor');
+                    } else {
+                        box.classList.remove('active-cursor');
+                    }
+                    
+                    // Locked vowel visual styling
+                    if (state.hintLocked[i]) {
+                        box.classList.add('bg-yellow-100');
+                        box.classList.remove('bg-white');
+                    } else {
+                        box.classList.remove('bg-yellow-100');
+                        box.classList.add('bg-white');
+                    }
                 }
             }
-            container.appendChild(box);
-        }
-    }
-
-    function updateKeyboardDisplay() {
-        const shiftBtn = document.getElementById('key-shift');
-        if (shiftState === 0) {
-            shiftBtn.textContent = "⇧";
-            shiftBtn.style.backgroundColor = "#d1d5db";
-            shiftBtn.style.color = "black";
-        } else if (shiftState === 1) {
-            shiftBtn.textContent = "⇧";
-            shiftBtn.style.backgroundColor = "#3b82f6";
-            shiftBtn.style.color = "white";
-        } else if (shiftState === 2) {
-            shiftBtn.textContent = "CAPS";
-            shiftBtn.style.backgroundColor = "#ef4444";
-            shiftBtn.style.color = "white";
         }
 
-        document.querySelectorAll('.key').forEach(btn => {
-            if (btn.textContent.length === 1 && /[a-zA-Z]/.test(btn.textContent)) {
-                btn.textContent = (shiftState > 0) ? btn.textContent.toUpperCase() : btn.textContent.toLowerCase();
+        // Helper: Find next non-locked index
+        function getNextUnlockedIndex(curr) {
+            for (let i = curr + 1; i < state.currentWord.length; i++) {
+                if (!state.hintLocked[i]) return i;
             }
-        });
-    }
-
-    // ==========================================
-    // AUDIO (TTS & SFX)
-    // ==========================================
-    let currentVoiceType = 'neutral';
-    
-    function setVoice(type) {
-        currentVoiceType = type;
-        // Update UI
-        document.querySelectorAll('[id^="voice-"]').forEach(btn => btn.classList.remove('ring-2', 'ring-offset-1', 'ring-black'));
-        document.getElementById(`voice-${type}`).classList.add('ring-2', 'ring-offset-1', 'ring-black');
-        
-        // Test play
-        playWordAudio(1.0, "Testing " + type + " voice");
-    }
-
-    function getVoice(type) {
-        const voices = window.speechSynthesis.getVoices();
-        if (type === 'neutral') return null; // Default
-        
-        // Try to match based on common voice names
-        if (type === 'boy') {
-            return voices.find(v => /male|david|mark|daniel/i.test(v.name)) || null;
-        }
-        if (type === 'girl') {
-            return voices.find(v => /female|zira|samantha|alice/i.test(v.name)) || null;
-        }
-        return null;
-    }
-
-    function playWordAudio(rate, overrideText = null) {
-        const textToSpeak = overrideText || currentWord;
-        if (!textToSpeak) return;
-
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(textToSpeak);
-        utterance.rate = rate;
-        utterance.lang = 'en-US';
-        
-        const selectedVoice = getVoice(currentVoiceType);
-        if (selectedVoice) {
-            utterance.voice = selectedVoice;
-        }
-        
-        window.speechSynthesis.speak(utterance);
-    }
-
-    function playBeep(frequency, type, duration) {
-        if (!audioCtx) return;
-        try {
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            oscillator.type = type;
-            oscillator.frequency.value = frequency;
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            oscillator.start();
-            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
-            oscillator.stop(audioCtx.currentTime + duration);
-        } catch(e) { console.log("Audio play failed"); }
-    }
-
-    function playSuccessSound() {
-        playBeep(600, 'sine', 0.1);
-        setTimeout(() => playBeep(800, 'sine', 0.3), 100);
-    }
-
-    function playWrongSound() {
-        playBeep(200, 'sawtooth', 0.4);
-    }
-    function showFeedback(isCorrect, word = "", isSkip = false) {
-        const overlay = document.getElementById('feedback-overlay');
-        const icon = document.getElementById('feedback-icon');
-        const text = document.getElementById('feedback-text');
-        
-        overlay.classList.remove('hidden-screen');
-        
-        if (isCorrect) {
-            icon.textContent = "✅";
-            text.textContent = "CORRECT!";
-            text.className = "font-roblox text-4xl text-green-600 tracking-widest";
-            playSuccessSound();
-        } else {
-            icon.textContent = isSkip ? "⏭" : "❌";
-            text.textContent = isSkip ? `WAS: ${word.toUpperCase()}` : "WRONG!";
-            text.className = isSkip ? "font-roblox text-3xl text-orange-600 mt-2 tracking-wide" : "font-roblox text-3xl text-red-600 mt-2 tracking-wide";
-            playWrongSound();
-        }
-    }
-
-    // ==========================================
-    // UI & TIMER UPDATES
-    // ==========================================
-    function updateStatsUI() {
-        document.getElementById('stat-score').textContent = score;
-        
-        const totalAttempts = correct + wrong + skipped;
-        let acc = 0;
-        if (totalAttempts > 0) {
-            acc = Math.round((correct / totalAttempts) * 100);
-        }
-        document.getElementById('stat-acc').textContent = acc + "%";
-    }
-
-    function updateTimer() {
-        timeRemaining--;
-        updateTimerDisplay();
-        
-        if (timeRemaining % 5 === 0) saveGameState(); 
-
-        if (timeRemaining <= 0) endGame();
-    }
-
-    function updateTimerDisplay() {
-        const m = Math.floor(timeRemaining / 60);
-        const s = timeRemaining % 60;
-        document.getElementById('timer-display').textContent = `${m}:${s.toString().padStart(2, '0')}`;
-        
-        if (timeRemaining <= 60) {
-            document.getElementById('timer-display').classList.add('text-red-600', 'animate-pulse');
-        }
-    }
-
-    // ==========================================
-    // SAVE & END GAME
-    // ==========================================
-    function saveGameState() {
-        if (!isPlaying) return;
-        const state = {
-            class: selectedClass,
-            student: selectedStudent,
-            selectedTopic: selectedTopic,
-            timeRemaining: timeRemaining,
-            score: score,
-            correct: correct,
-            wrong: wrong,
-            wordsAnswered: wordsAnswered,
-            totalTopicWords: totalTopicWords,
-            currentWordList: currentWordList,
-            currentWord: currentWord
-        };
-        localStorage.setItem('spellingGameState', JSON.stringify(state));
-    }
-
-    function endGame() {
-        isPlaying = false;
-        clearInterval(timerInterval);
-        localStorage.removeItem('spellingGameState'); 
-        window.speechSynthesis.cancel();
-        
-        showScreen('screen-end');
-        
-        // Calculate Final Score out of 100 based on completion of the topic
-        let finalScore100 = 0;
-        if (totalTopicWords > 0) {
-            finalScore100 = Math.round((correct / totalTopicWords) * 100);
+            // Loop back from beginning
+            for (let i = 0; i < state.currentWord.length; i++) {
+                if (!state.hintLocked[i]) return i;
+            }
+            return curr;
         }
 
-        document.getElementById('end-student').textContent = `${selectedStudent.id}-${selectedStudent.name}`;
-        document.getElementById('end-class').textContent = selectedClass;
-        document.getElementById('end-topic').textContent = selectedTopic.name;
-        document.getElementById('end-score').textContent = `${finalScore100} / 100`;
-        document.getElementById('end-correct').textContent = correct;
-        document.getElementById('end-wrong').textContent = wrong;
-        document.getElementById('end-words').textContent = wordsAnswered;
-
-        submitToGoogleSheets(finalScore100);
-    }
-
-    function submitToGoogleSheets(finalScore100) {
-        const statusEl = document.getElementById('save-status');
-        if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === "PASTE_URL_HERE") {
-            statusEl.textContent = "Google Sheets saving is not configured.";
-            statusEl.className = "text-center font-bold text-lg mb-4 text-red-500";
-            return;
+        function getPrevUnlockedIndex(curr) {
+            for (let i = curr - 1; i >= 0; i--) {
+                if (!state.hintLocked[i]) return i;
+            }
+            return curr;
         }
 
-        const payload = {
-            timestamp: new Date().toISOString(),
-            class: selectedClass,
-            studentId: selectedStudent.id,
-            studentName: selectedStudent.name,
-            topic: selectedTopic.name,
-            score: finalScore100,
-            correct: correct,
-            wrong: wrong,
-            wordsAnswered: wordsAnswered
-        };
+        // --- KEYBOARD & INPUT LOGIC ---
+        function renderKeyboard() {
+            const container = document.getElementById('keyboard');
+            container.innerHTML = '';
 
-        fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        })
-        .then(() => {
-            statusEl.textContent = "✅ Saved to Google Sheets!";
-            statusEl.className = "text-center font-bold text-lg mb-4 text-green-600";
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-            statusEl.textContent = "⚠️ Could not save to cloud (Check connection).";
-            statusEl.className = "text-center font-bold text-lg mb-4 text-red-500";
-        });
-    }
+            let isUpper = state.shiftState > 0;
 
-    // ==========================================
-    // UTILS
-    // ==========================================
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
+            keyboardLayout.forEach((row, rowIndex) => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'flex justify-center gap-1 md:gap-2 w-full h-12 md:h-16';
+                
+                row.forEach(key => {
+                    const btn = document.createElement('button');
+                    let displayChar = key;
+                    if (key.length === 1) {
+                        displayChar = isUpper ? key.toUpperCase() : key.toLowerCase();
+                    }
+
+                    btn.innerText = displayChar;
+                    
+                    // First 3 rows must maintain identical proportions with equal sizes
+                    if (rowIndex < 3) {
+                        btn.className = 'key font-balsamiq flex-1 max-w-[80px] min-w-0 text-xl md:text-3xl rounded-lg md:rounded-xl shadow-[2px_2px_0_0_#000] border-2 md:border-3 border-black active:translate-y-[2px] active:shadow-none truncate';
+                    } else {
+                        // Bottom Row (CLEAR, SPACE, BACKSPACE, ENTER) scales to fill layout according to ratios
+                        btn.className = 'key font-balsamiq min-w-0 text-xl md:text-3xl rounded-lg md:rounded-xl shadow-[2px_2px_0_0_#000] border-2 md:border-3 border-black active:translate-y-[2px] active:shadow-none truncate';
+                        
+                        // Set specific percentage ratios
+                        if (key === 'CLEAR') {
+                            btn.classList.add('flex-[2]'); // 20%
+                        } else if (key === 'SPACE') {
+                            btn.classList.add('flex-[3]'); // 30%
+                        } else if (key === 'BACKSPACE') {
+                            btn.classList.add('flex-[2]'); // 20%
+                        } else if (key === 'ENTER') {
+                            btn.classList.add('flex-[3]'); // 30%
+                        }
+                    }
+
+                    // Styling based on character type
+                    if (key.length > 1) {
+                        btn.classList.add('key-action');
+                        
+                        if(key === 'BACKSPACE') {
+                            btn.classList.add('text-2xl', 'md:text-4xl');
+                            displayChar = '⌫';
+                        }
+                        if(key === 'SHIFT') {
+                            displayChar = '⇧';
+                            btn.classList.add('text-3xl', 'md:text-5xl');
+                            if(state.shiftState === 1) btn.classList.replace('bg-[#9ca3af]', 'bg-blue-400');
+                            if(state.shiftState === 2) btn.classList.replace('bg-[#9ca3af]', 'bg-blue-600');
+                        }
+                        if(key === 'ENTER') {
+                            btn.classList.replace('bg-[#9ca3af]', 'bg-green-500');
+                            btn.classList.add('text-white');
+                        }
+                    } else if (vowels.includes(key)) {
+                        btn.classList.add('key-vowel');
+                    } else if (key === '-' || key === '\'') {
+                        btn.classList.add('key-punct');
+                    } else {
+                        btn.classList.add('key-consonant');
+                    }
+
+                    // Disable check
+                    if (state.disabledKeys.includes(key)) {
+                        btn.classList.add('disabled');
+                    }
+
+                    // Click handlers
+                    btn.onmousedown = (e) => { e.preventDefault(); handleKeyClick(key); };
+                    btn.ontouchstart = (e) => { e.preventDefault(); handleKeyClick(key); };
+                    
+                    btn.innerText = displayChar;
+                    rowDiv.appendChild(btn);
+                });
+                container.appendChild(rowDiv);
+            });
         }
-        return array;
-    }
 
-    window.addEventListener('beforeunload', function (e) {
-        if (isPlaying) {
-            e.preventDefault();
-            e.returnValue = '';
+        function handleKeyClick(key) {
+            if (!state.gameActive) return;
+
+            playSound('tap');
+
+            if (key === 'SHIFT') {
+                state.shiftState = (state.shiftState + 1) % 3;
+                renderKeyboard();
+                return;
+            } else if (key === 'CLEAR') {
+                state.inputLetters.forEach((letter, idx) => {
+                    if (!state.hintLocked[idx]) {
+                        state.inputLetters[idx] = '';
+                    }
+                });
+                state.cursorIndex = state.hintLocked.indexOf(false);
+                if (state.cursorIndex === -1) state.cursorIndex = 0;
+            } else if (key === 'BACKSPACE') {
+                if (state.inputLetters[state.cursorIndex] === '') {
+                    let prev = getPrevUnlockedIndex(state.cursorIndex);
+                    if (prev !== state.cursorIndex) {
+                        state.cursorIndex = prev;
+                        state.inputLetters[state.cursorIndex] = '';
+                    }
+                } else {
+                    if (!state.hintLocked[state.cursorIndex]) {
+                        state.inputLetters[state.cursorIndex] = '';
+                    }
+                }
+            } else if (key === 'SPACE') {
+                if (!state.hintLocked[state.cursorIndex]) {
+                    state.inputLetters[state.cursorIndex] = ' ';
+                }
+                state.cursorIndex = getNextUnlockedIndex(state.cursorIndex);
+            } else if (key === 'ENTER') {
+                checkAnswer();
+                return; 
+            } else {
+                let char = state.shiftState > 0 ? key.toUpperCase() : key.toLowerCase();
+                if (!state.hintLocked[state.cursorIndex]) {
+                    state.inputLetters[state.cursorIndex] = char;
+                }
+                
+                state.cursorIndex = getNextUnlockedIndex(state.cursorIndex);
+                
+                if (state.shiftState === 1) { 
+                    state.shiftState = 0; 
+                    renderKeyboard();
+                }
+            }
+            updateBoxContent();
         }
-    });
 
-</script>
+        function setupPhysicalKeyboard() {
+            document.addEventListener('keydown', (e) => {
+                if(!state.gameActive) return;
+                
+                if(e.key === 'Enter') { 
+                    handleKeyClick('ENTER'); 
+                }
+                else if(e.key === 'Backspace') { 
+                    handleKeyClick('BACKSPACE'); 
+                }
+                else if(e.key === ' ') { 
+                    e.preventDefault(); 
+                    handleKeyClick('SPACE'); 
+                }
+                else if(e.key === 'Escape') { 
+                    handleKeyClick('CLEAR'); 
+                }
+                else if(e.key.length === 1) {
+                    if(/[a-zA-Z\-']/.test(e.key)) {
+                        let keyToPass = e.key.toLowerCase();
+                        let originalShift = state.shiftState;
+                        if(e.getModifierState('CapsLock')) {
+                            state.shiftState = 2;
+                        }
+                        else if(e.shiftKey) {
+                            state.shiftState = 1;
+                        }
+                        else {
+                            state.shiftState = 0;
+                        }
+                        
+                        handleKeyClick(keyToPass);
+                        state.shiftState = originalShift; 
+                        renderKeyboard();
+                    }
+                }
+            });
+        }
+
+        // --- SPELLING GAMEPLAY SYSTEM ---
+        function toggleVoice() {
+            playSound('tap');
+            state.voiceGender = state.voiceGender === 'female' ? 'male' : 'female';
+            document.getElementById('ui-voice').innerText = state.voiceGender === 'female' ? 'Girl' : 'Boy';
+            saveState();
+        }
+
+        function playWord(rate) {
+            if (!synth) return;
+            synth.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(state.currentWord);
+            utterance.rate = rate;
+            
+            let selectedVoice = null;
+            if (voices.length > 0) {
+                let potentials = voices.filter(v => v.lang.startsWith('en'));
+                if(state.voiceGender === 'female') {
+                    selectedVoice = potentials.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('girl') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('zira'));
+                } else {
+                    selectedVoice = potentials.find(v => v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('boy') || v.name.toLowerCase().includes('david') || v.name.toLowerCase().includes('daniel') || v.name.toLowerCase().includes('mark'));
+                }
+                
+                if(!selectedVoice && potentials.length > 0) {
+                    if(state.voiceGender === 'female') selectedVoice = potentials[0];
+                    else selectedVoice = potentials.length > 1 ? potentials[1] : potentials[0];
+                }
+                
+                if(selectedVoice) utterance.voice = selectedVoice;
+            }
+            
+            synth.speak(utterance);
+        }
+
+        function useHint() {
+            if (!state.gameActive) return;
+            
+            let targetChars = state.currentWord.split('');
+            let hintAdded = false;
+            
+            for(let i=0; i < targetChars.length; i++) {
+                if (vowels.includes(targetChars[i].toLowerCase())) {
+                    // Check if this vowel position is not yet locked from previous hints
+                    if (!state.hintLocked[i]) {
+                        playSound('hint');
+                        
+                        state.inputLetters[i] = targetChars[i];
+                        state.hintLocked[i] = true; // Lock vowel position
+                        state.score -= 3;
+                        showFeedback('Hint Used -3', 'bg-yellow-500', 1000);
+                        
+                        if (state.cursorIndex === i) {
+                            state.cursorIndex = getNextUnlockedIndex(i);
+                        }
+                        
+                        updateBoxContent();
+                        updateTopUI();
+                        hintAdded = true;
+                        break;
+                    }
+                }
+            }
+            if(!hintAdded) {
+                showFeedback('No vowels left', 'bg-gray-500', 1000);
+            }
+        }
+
+        function skipWord() {
+            if (!state.gameActive) return;
+            playSound('skip');
+            state.attempts++;
+            state.targetWords.push(state.targetWords.splice(state.currentWordIndex, 1)[0]);
+            updateTopUI();
+            loadNextWordUI();
+        }
+
+        function checkAnswer() {
+            const assembledInput = state.inputLetters.join('').trim();
+            if (assembledInput.length === 0) return;
+            
+            state.attempts++;
+            
+            if (assembledInput.toLowerCase() === state.currentWord.toLowerCase()) {
+                playSound('correct');
+                state.correctAnswers++;
+                state.score += 10;
+                
+                // Show completed word with preserved layout typed cases
+                const container = document.getElementById('answer-container');
+                container.innerHTML = `
+                    <div class="w-full max-w-xl py-6 rounded-3xl border-8 border-black shadow-[6px_6px_0_0_#000] bg-green-500 text-white text-center font-bold text-5xl md:text-7xl tracking-widest animate-bounce">
+                        ${assembledInput}
+                    </div>
+                `;
+                
+                showFeedback('CORRECT!', 'bg-green-500', 2000);
+                playWord(1); 
+                
+                document.getElementById('wrong-actions').classList.add('hidden');
+                document.getElementById('next-action').classList.remove('hidden');
+                document.getElementById('submit-action').classList.add('hidden');
+                state.gameActive = false; 
+            } else {
+                playSound('wrong');
+                state.score -= 1;
+                showFeedback('WRONG', 'bg-red-600', 1500);
+                disableRandomKeys(3);
+                
+                document.getElementById('wrong-actions').classList.remove('hidden');
+                document.getElementById('submit-action').classList.add('hidden');
+            }
+            updateTopUI();
+        }
+
+        function clearInput() {
+            playSound('tap');
+            state.inputLetters.forEach((letter, idx) => {
+                if (!state.hintLocked[idx]) {
+                    state.inputLetters[idx] = '';
+                }
+            });
+            state.cursorIndex = state.hintLocked.indexOf(false);
+            if (state.cursorIndex === -1) state.cursorIndex = 0;
+
+            renderAnswerBoxes();
+            document.getElementById('wrong-actions').classList.add('hidden');
+            document.getElementById('submit-action').classList.remove('hidden');
+        }
+
+        function disableRandomKeys(count) {
+            let wordChars = state.currentWord.toLowerCase().split('');
+            let availableConsonants = keyboardLayout.flat().filter(k => 
+                k.length === 1 && 
+                !vowels.includes(k) && 
+                !wordChars.includes(k) && 
+                !state.disabledKeys.includes(k) &&
+                k !== '-' && k !== '\''
+            );
+            
+            availableConsonants.sort(() => 0.5 - Math.random());
+            let toDisable = availableConsonants.slice(0, count);
+            
+            state.disabledKeys.push(...toDisable);
+            renderKeyboard();
+        }
+
+        function showFeedback(text, bgClass, duration) {
+            const overlay = document.getElementById('feedback-overlay');
+            const msgBox = document.getElementById('feedback-msg');
+            
+            msgBox.innerText = text;
+            msgBox.className = `font-roblox-title text-5xl md:text-7xl px-12 py-6 rounded-3xl border-8 border-black transform -rotate-3 text-white ${bgClass} shadow-[8px_8px_0_0_#000]`;
+            
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            
+            setTimeout(() => {
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+            }, duration);
+        }
+
+        function nextWord() {
+            playSound('tap');
+            state.currentWordIndex++;
+            if (state.currentWordIndex >= 10) {
+                endGame();
+            } else {
+                state.gameActive = true;
+                loadNextWordUI();
+            }
+        }
+
+        // --- ENDGAME & CLOUD REPORTING ---
+        function endGame() {
+            clearInterval(state.timerInterval);
+            state.gameActive = false;
+            
+            playSound('fanfare');
+            
+            document.getElementById('result-name').innerText = capitalizeName(state.studentName);
+            document.getElementById('result-score').innerText = state.score;
+            document.getElementById('result-words').innerText = state.currentWordIndex;
+
+            const rankTitle = document.getElementById('result-badge-title');
+            const rankSubtitle = document.getElementById('result-badge-subtitle');
+            if (state.score >= 100) {
+                rankTitle.innerText = "🏆 MASTER SPELLER!";
+                rankSubtitle.innerText = "S-Rank Unlocked • 🌟 LEGENDARY 🌟";
+            } else if (state.score >= 80) {
+                rankTitle.innerText = "⭐ SPELLING HERO!";
+                rankSubtitle.innerText = "A-Rank Unlocked • 🔥 AMAZING 🔥";
+            } else if (state.score >= 50) {
+                rankTitle.innerText = "⚔️ SPELLING WARRIOR";
+                rankSubtitle.innerText = "B-Rank • 🌱 GROWING STRONG 🌱";
+            } else {
+                rankTitle.innerText = "🌱 SPELLING APPRENTICE";
+                rankSubtitle.innerText = "Keep practicing to level up! 🦾";
+            }
+
+            nav('screen-result');
+            startConfetti();
+
+            sendDataToSheets();
+            localStorage.removeItem('spellingGameState');
+        }
+
+        function sendDataToSheets() {
+            const statusEl = document.getElementById('sync-status');
+            statusEl.innerText = "Saving results to cloud...";
+            statusEl.className = "mt-4 text-sm text-yellow-600 font-bold animate-pulse";
+
+            const payload = {
+                Timestamp: new Date().toISOString(),
+                School: state.school,
+                Class: state.classGrade + 'A', // Stores standard labels like '3A'
+                StudentID: state.studentId,
+                StudentName: capitalizeName(state.studentName),
+                Topic: state.topicName,
+                Subtopic: state.subtopic,
+                TimeTaken: 480 - state.timer, 
+                Score: state.score
+            };
+
+            // Remove headers key content to bypass preflight locks entirely
+            fetch(GOOGLE_APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', 
+                body: JSON.stringify(payload)
+            }).then(() => {
+                statusEl.innerText = "✓ Results saved directly to Sheet!";
+                statusEl.className = "mt-4 text-sm text-green-600 font-bold";
+            }).catch(error => {
+                console.error('Error saving data:', error);
+                statusEl.innerText = "⚠ Saved locally. Cloud sync failed.";
+                statusEl.className = "mt-4 text-sm text-red-600 font-bold";
+            });
+        }
+
+        // --- CELEBRATORY CONFETTI ENGINE ---
+        let confettiActive = false;
+        function startConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            
+            const colors = ['#f43f5e', '#3b82f6', '#10b981', '#eab308', '#ec4899', '#8b5cf6'];
+            const particles = [];
+            for (let i = 0; i < 150; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    r: Math.random() * 6 + 4,
+                    d: Math.random() * canvas.height,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    tilt: Math.random() * 10 - 5,
+                    tiltAngleIncremental: Math.random() * 0.07 + 0.02,
+                    tiltAngle: 0
+                });
+            }
+            
+            confettiActive = true;
+            function draw() {
+                if (!confettiActive) return;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let results = false;
+                particles.forEach((p, index) => {
+                    p.tiltAngle += p.tiltAngleIncremental;
+                    p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
+                    p.x += Math.sin(p.tiltAngle);
+                    p.tilt = Math.sin(p.tiltAngle - (index / 3)) * 15;
+                    
+                    if (p.y <= canvas.height) {
+                        results = true;
+                    } else {
+                        p.y = -20;
+                        p.x = Math.random() * canvas.width;
+                    }
+                    
+                    ctx.beginPath();
+                    ctx.lineWidth = p.r;
+                    ctx.strokeStyle = p.color;
+                    ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+                    ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+                    ctx.stroke();
+                });
+                if (results) {
+                    requestAnimationFrame(draw);
+                }
+            }
+            draw();
+        }
+        
+        function stopConfetti() {
+            confettiActive = false;
+        }
+
+        // --- PERSISTENCE UTILITIES ---
+        function toggleFullScreen() {
+            playSound('tap');
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Fullscreen error: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        function saveState() {
+            if (state.studentName) {
+                localStorage.setItem('spellingGameState', JSON.stringify(state));
+            }
+        }
+
+        function checkSavedGame() {
+            const saved = localStorage.getItem('spellingGameState');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.gameActive || (parsed.targetWords && parsed.targetWords.length > 0 && parsed.currentWordIndex < 10)) {
+                        document.getElementById('resume-banner').classList.remove('hidden');
+                        document.getElementById('resume-banner').classList.add('flex');
+                    }
+                } catch (e) {
+                    console.error("Corrupted save data");
+                }
+            }
+        }
+
+        function resumeGame() {
+            playSound('tap');
+            const saved = localStorage.getItem('spellingGameState');
+            if (saved) {
+                state = JSON.parse(saved);
+                if (state.gameActive || (state.targetWords.length > 0 && state.currentWordIndex < 10)) {
+                    state.gameActive = true;
+                    nav('screen-game');
+                    updateTopUI();
+                    renderKeyboard();
+                    renderAnswerBoxes();
+                    
+                    clearInterval(state.timerInterval);
+                    state.timerInterval = setInterval(updateTimer, 1000);
+                } else {
+                    nav('screen-4');
+                    renderTopics();
+                }
+            }
+        }
+
+        function clearSave() {
+            playSound('tap');
+            localStorage.removeItem('spellingGameState');
+            document.getElementById('resume-banner').classList.add('hidden');
+            document.getElementById('resume-banner').classList.remove('flex');
+        }
+
+    </script>
 </body>
 </html>
