@@ -506,12 +506,41 @@
                 assignedSchool: ['all'],
                 assignedClasses: ['5A','6A'],
                 words: ["apple","bread","chair","clean","cloud","drink","grass","green","happy","house","light","plant","smile","snake","spoon","stone","sweet","train","water","white","black","brown","shirt","clock","brush","beach","camel","dance","earth","fruit","glass","heart","jelly","lemon","magic","music","paper","queen","robot","sheep","table","tiger","uncle","zebra"]
-            }
+            },
+            {
+                id: 'phonics6',
+                name: 'er/ir/ur Words',
+                assignedSchool: ['all'],
+                assignedClasses: ['6A'],
+                words: ['clerk', 'perm', 'girl', 'skirt', 'nurse', 'purse', 'first', 'blur', 'burn', 'her', 'turn', 'bird', 'hurt',]
+            },
+            {
+                id: 'phonics7',
+                name: 'ar/or Words',
+                assignedSchool: ['all'],
+                assignedClasses: ['6A'],
+                words: ['car', 'star', 'far', 'jar', 'bar', 'farm', 'party', 'or', 'corn', 'horse', 'pork',, 'form', 'park', 'born', 'barn', 'corn', 'card',]
+            }, 
+            {
+                id: 'phonics8',
+                name: 'a_e/ai/ay Words',
+                assignedSchool: ['all'],
+                assignedClasses: ['5A'],
+                words: ['gate', 'wave', 'mate', 'bake', 'hate', 'rain', 'pail', 'pain', 'main', 'day', 'play', 'may', 'way',]
+            },
+            {   id: 'phonics9',
+                name: 'e_e/ea/ee Words',
+                assignedSchool: ['all'],
+                assignedClasses: ['5A'],
+                words: ['Eve', 'these', 'peach', 'tea', 'green', 'tree', 'see', 'sea', 'seat', 'weed', 'Pete', 'beat',]
+            },
         ];
 
         const lessonsData = [
             { id: 'countries', name: '🏳️Countries', assignedSchool: ['All'], assignedClasses: ['6A'], words: ["Taiwan", "France", "India", "Japan", "the USA", "the UK", "Australia", "Canada", ] },
-           
+            { id: 'illnesses', name: '🤒Illnesses', assignedSchool: ['All'], assignedClasses: ['6A'], words: ["cold", "fever", "headache", "stomachache", "cough", "sore throat", "toothache", "runny nose",] },
+            { id: 'drinks', name: '🥤Drink', assignedSchool: ['Cigu'], assignedClasses: ['5A'], words: ["water", "juice", "milk", "cola", "tea", "coffee", "lemonade", "bubble tea", "hot chocolate", "soy milk",] },
+            { id: 'fruits', name: '🍎Fruit', assignedSchool: ['Cigu'], assignedClasses: ['5A'], words: ["apples", "bananas", "oranges", "grapes", "guavas", "papayas", "pineapples", ] }
         ];
 
         let state = {
@@ -726,8 +755,12 @@
         }
 
         function prepareGameWords(wordPool) {
-            let shuffled = [...wordPool].sort(() => 0.5 - Math.random());
-            state.targetWords = shuffled.slice(0, 10);
+            let selected = [];
+            while (selected.length < 10) {
+                let shuffled = [...wordPool].sort(() => 0.5 - Math.random());
+                selected.push(...shuffled);
+            }
+            state.targetWords = selected.slice(0, 10);
             
             state.currentWordIndex = 0;
             state.score = 0;
@@ -807,8 +840,8 @@
         function loadNextWordUI() {
             state.currentWord = state.targetWords[state.currentWordIndex];
             
-            state.inputLetters = Array(state.currentWord.length).fill('');
-            state.hintLocked = Array(state.currentWord.length).fill(false); // Tracking hint-locked blocks
+            state.inputLetters = state.currentWord.split('').map(char => char === ' ' ? ' ' : '');
+            state.hintLocked = state.currentWord.split('').map(char => char === ' '); // Locks the space block
             state.cursorIndex = 0;
             state.disabledKeys = [];
             
@@ -864,12 +897,15 @@
                         box.classList.remove('active-cursor');
                     }
                     
-                    // Locked vowel visual styling
-                    if (state.hintLocked[i]) {
+                    // Locked space and vowel visual styling
+                    if (state.currentWord[i] === ' ') {
+                        box.classList.add('bg-gray-400', 'pointer-events-none');
+                        box.classList.remove('bg-white', 'bg-yellow-100');
+                    } else if (state.hintLocked[i]) {
                         box.classList.add('bg-yellow-100');
-                        box.classList.remove('bg-white');
+                        box.classList.remove('bg-white', 'bg-gray-400');
                     } else {
-                        box.classList.remove('bg-yellow-100');
+                        box.classList.remove('bg-yellow-100', 'bg-gray-400');
                         box.classList.add('bg-white');
                     }
                 }
@@ -1151,7 +1187,7 @@
             
             state.attempts++;
             
-            if (assembledInput.toLowerCase() === state.currentWord.toLowerCase()) {
+            if (assembledInput === state.currentWord) {
                 playSound('correct');
                 state.correctAnswers++;
                 state.score += 10;
