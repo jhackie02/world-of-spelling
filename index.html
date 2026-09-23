@@ -545,17 +545,39 @@
                 assignedSchool : ['Shulin'],
                 assignedClasses: ['5A'],
                 words: ['time', 'line', 'kite', 'nine', 'fine', 'tie', 'pie', 'die', 'lie', 'fly', 'sky', 'fly', 'my', 'try', 'cry', 'dry', 'shy',]
-            }
+            },
+            {  id: 'phonics12',
+                name: 'b/p Words',
+                assignedSchool : ['Shulin'],
+                assignedClasses: ['4A'],
+                words: ['bat', 'pat', 'cab', 'cap', 'tab', 'tap', 'rib', 'rip', 'box', 'big', 'pig', 'peg', 'beg']
+            },
+            {  id: 'phonics13',
+                name: 'd/t Words',
+                assignedSchool : ['Shulin'],
+                assignedClasses: ['4A'],
+                words: ['dot', 'tot', 'mad', 'mat', 'bad', 'bat', 'bid', 'bit', 'did', 'dig', 'dog', 'tag', 'tap']
+            },
+            {  id: 'phonics14',
+                name: 'g/c Words',
+                assignedSchool : ['Shulin'],
+                assignedClasses: ['4A'],
+                words: ['gap', 'cap', 'gut', 'cut', 'gum', 'cop', 'gab', 'cab', 'cod', 'god', 'log']
+            },
         ];
 
         const lessonsData = [
-            { id: 'countries', name: 'WW6-1🏳️Countries', assignedSchool: ['All'], assignedClasses: ['6A'], words: ["Taiwan", "France", "India", "Japan", "the USA", "the UK", "Australia", "Canada", ] },
-            { id: 'illnesses', name: 'WW6-2 🤒Illnesses', assignedSchool: ['All'], assignedClasses: ['6A'], words: ["cold", "fever", "headache", "stomachache", "cough", "sore throat", "toothache", "runny nose",] },
-            { id: 'drinks', name: 'WW5-1🥤Drink', assignedSchool: ['Cigu'], assignedClasses: ['5A'], words: ["water", "juice", "milk", "cola", "tea", "coffee", "lemonade", "bubble tea", "hot chocolate", "soy milk",] },
-            { id: 'fruits', name: 'WW5-2🍎Fruit', assignedSchool: ['Cigu'], assignedClasses: ['5A'], words: ["apples", "bananas", "oranges", "grapes", "guavas", "papayas", "pineapples", ] },
-            { id: 'numbers', name: 'WW1-1 Numbers', assignedSchool: ['All'], assignedClasses: ['3A'], words: ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"] },
-            { id: 'daysoftheweek', name: 'HWG5-1 📅Days of the Week', assignedSchool: ['Shulin'], assignedClasses: ['5A'], words: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] },
-            { id: 'subjects', name: 'HWG5-2 📚Subjects', assignedSchool: ['Shulin'], assignedClasses: ['5A'], words: ["math", "science", "english", "social studies", "PE", "art", "Chinese", "music"] }
+            { id: 'G6', name: 'WW6-1🏳️Countries', assignedSchool: ['All'], assignedClasses: ['6A'], words: ["Taiwan", "France", "India", "Japan", "the USA", "the UK", "Australia", "Canada", ] },
+            { id: 'G6', name: 'WW6-2 🤒Illnesses', assignedSchool: ['All'], assignedClasses: ['6A'], words: ["cold", "fever", "headache", "stomachache", "cough", "sore throat", "toothache", "runny nose",] },
+            { id: 'G5', name: 'WW5-1🥤Drink', assignedSchool: ['Cigu'], assignedClasses: ['5A'], words: ["water", "juice", "milk", "cola", "tea", "coffee", "lemonade", "bubble tea", "hot chocolate", "soy milk",] },
+            { id: 'G5', name: 'WW5-2🍎Fruit', assignedSchool: ['Cigu'], assignedClasses: ['5A'], words: ["apples", "bananas", "oranges", "grapes", "guavas", "papayas", "pineapples", ] },
+            { id: 'numbers', name: '🔢Numbers 1-10', assignedSchool: ['All'], assignedClasses: ['3A', '4A'], words: ["one", "two", "three", "four", "five", "name", "what", "is", "what's", "my", "your", "I'm", "am"] },
+            { id: 'G5', name: 'HWG5-1 📅Days of the Week', assignedSchool: ['Shulin'], assignedClasses: ['5A'], words: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] },
+            { id: 'G5', name: 'HWG5-2 📚Subjects', assignedSchool: ['Shulin'], assignedClasses: ['5A'], words: ["math", "science", "english", "social studies", "PE", "art", "Chinese", "music"] },
+            { id: 'numbers', name: '🔢Numbers 11-20', assignedSchool: ['Shulin'], assignedClasses: ['4A'], words: ["eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty"] },
+            { id: 'G4', name: '🌤️Weather', assignedSchool: ['Shulin'], assignedClasses: ['4A'], words: ["sunny", "cloudy", "rainy", "windy", "stormy", "snowy", "hot", "cold", "warm", "cool", "weather", "how", "how's", "it's", "it", "is"] },
+            { id: 'G4/G3', name: '😊Feeling', assignedSchool: ['All'], assignedClasses: ['3A','4A'], words: ["happy", "sad", "angry", "full", "hungry", "tired", "thirsty", "are", "is", "you", "yes", "no", "am", "I'm", "is", "isn't", "not", "he", "she"] },
+            
         ];
         let state = {
             school: '',
@@ -1330,7 +1352,7 @@
             statusEl.className = "mt-4 text-sm text-yellow-600 font-bold animate-pulse";
 
             const payload = {
-                Timestamp: new Date().toISOString(),
+                Timestamp: new Date().toLocaleString('en-US', { timeZone: 'Asia/Taipei' }),
                 School: state.school,
                 Class: state.classGrade + 'A', // Stores standard labels like '3A'
                 StudentID: state.studentId,
