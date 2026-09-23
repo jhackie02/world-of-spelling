@@ -216,8 +216,9 @@
                         Voice: <span id="ui-voice" class="ml-1">Girl</span>
                     </button>
                     
-                    <div class="bg-red-500 text-white font-roblox-title px-3 py-1 md:px-4 md:py-2 rounded-xl border-2 border-black text-lg md:text-2xl flex items-center min-w-[80px] justify-center">
-                        ⏱ <span id="ui-timer" class="ml-1">08:00</span>
+                   <div class="bg-red-500 text-white font-roblox-title px-3 py-1 md:px-4 md:py-2 rounded-xl border-2 border-black text-lg md:text-2xl flex flex-col items-center justify-center min-w-[100px]">
+                        <div class="flex items-center">⏱ <span id="ui-timer" class="ml-1">08:00</span></div>
+                        <div id="ui-penalty" class="text-xs text-yellow-300 font-bold hidden">-0 pts</div>
                     </div>
                 </div>
             </div>
@@ -866,7 +867,31 @@
             const secs = state.timer % 60;
             document.getElementById('ui-timer').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
             
-            if(state.timer % 10 === 0) saveState();
+            // --- LIVE PENALTY TAG & SCORE DEDUCTION (-2 pts) ---
+            let totalTimeTaken = 480 - state.timer;
+            const penaltyEl = document.getElementById('ui-penalty');
+
+            if (totalTimeTaken > 40) {
+                let overtime = totalTimeTaken - 40;
+                let penaltyBlocks = Math.floor(overtime / 10);
+                let currentPenalty = penaltyBlocks * 2;
+
+                // Update yellow penalty tag under timer
+                if (penaltyEl) {
+                    penaltyEl.innerText = `-${currentPenalty} pts`;
+                    penaltyEl.classList.remove('hidden');
+                }
+
+                // Deduct 2 points quietly at every 10-second interval (50s, 60s, 70s...)
+                if (totalTimeTaken % 10 === 0) {
+                    state.score -= 2;
+                    updateTopUI(); // Updates header score display immediately
+                }
+            } else if (penaltyEl) {
+                penaltyEl.classList.add('hidden');
+            }
+
+            if (state.timer % 10 === 0) saveState();
 
             if (state.timer <= 0) {
                 endGame();
@@ -1317,6 +1342,14 @@
             clearInterval(state.timerInterval);
             state.gameActive = false;
             
+            // --- TOTAL TIME PENALTY CALCULATION ---
+            let totalTimeTaken = 480 - state.timer; // Seconds taken out of 480
+            if (totalTimeTaken > 40) {
+                let overtime = totalTimeTaken - 40;
+                let penaltyBlocks = Math.floor(overtime / 10);
+                state.score -= penaltyBlocks * 2;
+            }
+            
             playSound('fanfare');
             
             document.getElementById('result-name').innerText = capitalizeName(state.studentName);
@@ -1351,6 +1384,11 @@
             statusEl.innerText = "Saving results to cloud...";
             statusEl.className = "mt-4 text-sm text-yellow-600 font-bold animate-pulse";
 
+           const totalSecs = 480 - state.timer;
+            const minutes = Math.floor(totalSecs / 60);
+            const seconds = totalSecs % 60;
+            const formattedTime = `${minutes} min ${seconds} sec`; // Example: "1 min 15 sec"
+
             const payload = {
                 Timestamp: new Date().toLocaleString('en-US', { timeZone: 'Asia/Taipei' }),
                 School: state.school,
@@ -1359,7 +1397,7 @@
                 StudentName: capitalizeName(state.studentName),
                 Topic: state.topicName,
                 Subtopic: state.subtopic,
-                TimeTaken: 480 - state.timer, 
+                TimeTaken: formattedTime, 
                 Score: state.score
             };
 
