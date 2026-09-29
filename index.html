@@ -884,7 +884,7 @@
 
                 // Deduct 2 points quietly at every 10-second interval (50s, 60s, 70s...)
                 if (totalTimeTaken % 10 === 0) {
-                    state.score -= 2;
+                    state.score = Math.max(0, state.score - 2); // Ensures score never drops below 0
                     updateTopUI(); // Updates header score display immediately
                 }
             } else if (penaltyEl) {
@@ -1214,7 +1214,7 @@
                         
                         state.inputLetters[i] = targetChars[i];
                         state.hintLocked[i] = true; // Lock vowel position
-                        state.score -= 3;
+                        state.score = Math.max(0, state.score - 3);
                         showFeedback('Hint Used -3', 'bg-yellow-500', 1000);
                         
                         if (state.cursorIndex === i) {
@@ -1232,8 +1232,7 @@
                 showFeedback('No vowels left', 'bg-gray-500', 1000);
             }
 
-            // Find where the score penalty is applied in useHint():
-            state.score = Math.max(0, state.score - 3); // Ensures score doesn't go below 0
+        
 
         }
 
@@ -1274,7 +1273,7 @@
                 state.gameActive = false; 
             } else {
                 playSound('wrong');
-                state.score -= 1;
+                state.score = Math.max(0, state.score - 1);
                 showFeedback('WRONG', 'bg-red-600', 1500);
                 disableRandomKeys(3);
                 
