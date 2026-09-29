@@ -1231,6 +1231,10 @@
             if(!hintAdded) {
                 showFeedback('No vowels left', 'bg-gray-500', 1000);
             }
+
+            // Find where the score penalty is applied in useHint():
+            state.score = Math.max(0, state.score - 3); // Ensures score doesn't go below 0
+
         }
 
         function skipWord() {
