@@ -1347,8 +1347,8 @@
             
             // --- TOTAL TIME PENALTY CALCULATION ---
             let totalTimeTaken = 480 - state.timer; // Seconds taken out of 480
-            if (totalTimeTaken > 40) {
-                let overtime = totalTimeTaken - 40;
+            if (totalTimeTaken > 120) {
+                let overtime = totalTimeTaken - 120;
                 let penaltyBlocks = Math.floor(overtime / 10);
                 state.score -= penaltyBlocks * 2;
             }
