@@ -1350,7 +1350,7 @@
             if (totalTimeTaken > 180) {
                 let overtime = totalTimeTaken - 180;
                 let penaltyBlocks = Math.floor(overtime / 10);
-                state.score -= penaltyBlocks * 2;
+                score = Math.max(0, score - penaltyPoints * penaltyBlocks * 2);
             }
             
             playSound('fanfare');
