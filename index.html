@@ -34,7 +34,6 @@
             border: 4px solid black;
             box-shadow: 6px 6px 0px 0px var(--shadow-color);
             transition: all 0.1s ease;
-            text-transform: uppercase;
             font-weight: bold;
         }
         .btn-roblox:active {
@@ -766,7 +765,7 @@
 
             filtered.forEach(cat => {
                 const btn = document.createElement('button');
-                btn.className = `btn-roblox ${colors[cat.id] || 'bg-blue-500 text-white'} py-8 rounded-2xl text-2xl md:text-3xl min-w-0`;
+                btn.className = `btn-roblox ${colors[cat.id] || 'bg-blue-500 text-white'} py-4 px-3 rounded-xl text-sm md:text-lg min-w-0 h-full flex items-center justify-center text-center whitespace-normal break-words`;
                 btn.innerText = cat.name;
                 btn.onclick = () => {
                     playSound('tap');
@@ -785,7 +784,7 @@
             lessonsData.forEach(topic => {
                 if (isSchoolAssigned(topic.assignedSchool) && isClassAssigned(topic.assignedClasses)) {
                     const btn = document.createElement('button');
-                    btn.className = 'btn-roblox bg-blue-500 hover:bg-blue-400 text-white py-6 rounded-xl text-xl md:text-2xl min-w-0 truncate';
+                    btn.className = 'btn-roblox bg-blue-500 hover:bg-blue-400 text-white py-4 px-3 rounded-xl text-base md:text-xl min-w-0 h-full flex items-center justify-center text-center whitespace-normal break-words';
                     btn.innerText = topic.name;
                     btn.onclick = () => {
                         playSound('tap');
