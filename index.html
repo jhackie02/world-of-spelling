@@ -839,14 +839,16 @@
         function startGame() {
             if(state.targetWords.length === 0) { nav('screen-4'); return; }
             
-            if(state.currentWordIndex >= 10) {
-                state.currentWordIndex = 0;
-                state.score = 0;
-                state.attempts = 0;
-                state.correctAnswers = 0;
-                state.timer = 480;
-                state.targetWords.sort(() => 0.5 - Math.random());
-            }
+            // --- FORCE RESET FOR REPLAY ---
+            state.currentWordIndex = 0;
+            state.score = 0;
+            state.attempts = 0;
+            state.correctAnswers = 0;
+            state.timer = 480;
+            state.gameActive = false;
+            
+            // Reshuffle the word pool for a fresh attempt
+            state.targetWords.sort(() => 0.5 - Math.random());
 
             state.gameActive = true;
             nav('screen-game');
@@ -873,14 +875,15 @@
             const secs = state.timer % 60;
             document.getElementById('ui-timer').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
             
-            // --- LIVE PENALTY TAG & SCORE DEDUCTION (-2 pts) ---
+            // --- LIVE PENALTY TAG & SCORE DEDUCTION (-5 pts per minute after 3 mins) ---
             let totalTimeTaken = 480 - state.timer;
             const penaltyEl = document.getElementById('ui-penalty');
 
             if (totalTimeTaken > 180) {
                 let overtime = totalTimeTaken - 180;
-                let penaltyBlocks = Math.floor(overtime / 10);
-                let currentPenalty = penaltyBlocks * 2;
+                // Calculate how many full minutes have passed in overtime (every 60 seconds)
+                let penaltyMinutes = Math.floor(overtime / 60) + 1;
+                let currentPenalty = penaltyMinutes * 5;
 
                 // Update yellow penalty tag under timer
                 if (penaltyEl) {
@@ -888,9 +891,9 @@
                     penaltyEl.classList.remove('hidden');
                 }
 
-                // Deduct 2 points quietly at every 10-second interval (130s, 140s, 150s...)
-                if (totalTimeTaken % 10 === 0) {
-                    state.score = Math.max(0, state.score - 2); // Ensures score never drops below 0
+                // Deduct points at the exact moment a new minute threshold is crossed (e.g., at 181s, 241s, 301s)
+                if (overtime % 60 === 1) {
+                    state.score = Math.max(0, state.score - 5); // Deducts 5 points per minute, keeping score at 0 minimum[cite: 1]
                     updateTopUI(); // Updates header score display immediately
                 }
             } else if (penaltyEl) {
@@ -1351,12 +1354,12 @@
             clearInterval(state.timerInterval);
             state.gameActive = false;
             
-            // --- TOTAL TIME PENALTY CALCULATION ---
+            // --- TOTAL TIME PENALTY CALCULATION (-5 pts per minute after 3 mins) ---
             let totalTimeTaken = 480 - state.timer; // Seconds taken out of 480
             if (totalTimeTaken > 180) {
                 let overtime = totalTimeTaken - 180;
-                let penaltyBlocks = Math.floor(overtime / 10);
-                score = Math.max(0, score - penaltyPoints * penaltyBlocks * 2);
+                let penaltyMinutes = Math.floor(overtime / 60) + 1;
+                state.score = Math.max(0, state.score - (penaltyMinutes * 5)); //[cite: 1]
             }
             
             playSound('fanfare');
@@ -1381,13 +1384,12 @@
                 rankSubtitle.innerText = "Keep practicing to level up! 🦾";
             }
 
-            nav('screen-result');
-            startConfetti();
+                nav('screen-result');
+                startConfetti();
 
-            sendDataToSheets();
-            localStorage.removeItem('spellingGameState');
+                sendDataToSheets();
+                localStorage.removeItem('spellingGameState');
         }
-
         function sendDataToSheets() {
             const statusEl = document.getElementById('sync-status');
             statusEl.innerText = "Saving results to cloud...";
