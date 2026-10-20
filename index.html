@@ -868,6 +868,7 @@
         }
 
         function updateTimer() {
+            function updateTimer() {
             if (!state.gameActive) return;
             state.timer--;
             
@@ -881,7 +882,6 @@
 
             if (totalTimeTaken > 180) {
                 let overtime = totalTimeTaken - 180;
-                // Calculate how many full minutes have passed in overtime (every 60 seconds)
                 let penaltyMinutes = Math.floor(overtime / 60) + 1;
                 let currentPenalty = penaltyMinutes * 5;
 
@@ -891,10 +891,10 @@
                     penaltyEl.classList.remove('hidden');
                 }
 
-                // Deduct points at the exact moment a new minute threshold is crossed (e.g., at 181s, 241s, 301s)
+                // Deduct points at the exact moment a new minute threshold is crossed
                 if (overtime % 60 === 1) {
-                    state.score = Math.max(0, state.score - 5); // Deducts 5 points per minute, keeping score at 0 minimum[cite: 1]
-                    updateTopUI(); // Updates header score display immediately
+                    state.score = Math.max(0, state.score - 5);
+                    updateTopUI();
                 }
             } else if (penaltyEl) {
                 penaltyEl.classList.add('hidden');
@@ -905,6 +905,7 @@
             if (state.timer <= 0) {
                 endGame();
             }
+        }
         }
 
         function loadNextWordUI() {
@@ -1187,23 +1188,38 @@
             synth.cancel();
             
             const utterance = new SpeechSynthesisUtterance(state.currentWord);
-            utterance.rate = rate;
+            utterance.rate = rate || 0.75; 
+            utterance.pitch = 1.0;
+            utterance.lang = 'en-US';
             
             let selectedVoice = null;
             if (voices.length > 0) {
                 let potentials = voices.filter(v => v.lang.startsWith('en'));
-                if(state.voiceGender === 'female') {
-                    selectedVoice = potentials.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('girl') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('zira'));
+                
+                if (state.voiceGender === 'female') {
+                    selectedVoice = potentials.find(v => 
+                        v.name.toLowerCase().includes('female') || 
+                        v.name.toLowerCase().includes('girl') || 
+                        v.name.toLowerCase().includes('samantha') || 
+                        v.name.toLowerCase().includes('victoria') ||
+                        v.name.toLowerCase().includes('zira')
+                    );
                 } else {
-                    selectedVoice = potentials.find(v => v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('boy') || v.name.toLowerCase().includes('david') || v.name.toLowerCase().includes('daniel') || v.name.toLowerCase().includes('mark'));
+                    selectedVoice = potentials.find(v => 
+                        v.name.toLowerCase().includes('male') || 
+                        v.name.toLowerCase().includes('boy') || 
+                        v.name.toLowerCase().includes('david') || 
+                        v.name.toLowerCase().includes('daniel') || 
+                        v.name.toLowerCase().includes('mark') ||
+                        v.name.toLowerCase().includes('alex')
+                    );
                 }
                 
-                if(!selectedVoice && potentials.length > 0) {
-                    if(state.voiceGender === 'female') selectedVoice = potentials[0];
-                    else selectedVoice = potentials.length > 1 ? potentials[1] : potentials[0];
+                if (!selectedVoice && potentials.length > 0) {
+                    selectedVoice = state.voiceGender === 'female' ? potentials[0] : (potentials[1] || potentials[0]);
                 }
                 
-                if(selectedVoice) utterance.voice = selectedVoice;
+                if (selectedVoice) utterance.voice = selectedVoice;
             }
             
             synth.speak(utterance);
@@ -1355,11 +1371,11 @@
             state.gameActive = false;
             
             // --- TOTAL TIME PENALTY CALCULATION (-5 pts per minute after 3 mins) ---
-            let totalTimeTaken = 480 - state.timer; // Seconds taken out of 480
+            let totalTimeTaken = 480 - state.timer; 
             if (totalTimeTaken > 180) {
                 let overtime = totalTimeTaken - 180;
                 let penaltyMinutes = Math.floor(overtime / 60) + 1;
-                state.score = Math.max(0, state.score - (penaltyMinutes * 5)); //[cite: 1]
+                state.score = Math.max(0, state.score - (penaltyMinutes * 5));
             }
             
             playSound('fanfare');
@@ -1384,11 +1400,11 @@
                 rankSubtitle.innerText = "Keep practicing to level up! 🦾";
             }
 
-                nav('screen-result');
-                startConfetti();
+            nav('screen-result');
+            startConfetti();
 
-                sendDataToSheets();
-                localStorage.removeItem('spellingGameState');
+            sendDataToSheets();
+            localStorage.removeItem('spellingGameState');
         }
         function sendDataToSheets() {
             const statusEl = document.getElementById('sync-status');
