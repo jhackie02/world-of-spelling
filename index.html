@@ -845,15 +845,16 @@
             state.attempts = 0;
             state.correctAnswers = 0;
             state.timer = 480;
-            state.gameActive = false;
             
             // Reshuffle the word pool for a fresh attempt
             state.targetWords.sort(() => 0.5 - Math.random());
 
+            // --- CRITICAL: Ensure gameActive is set to true so the timer ticks ---
             state.gameActive = true;
             nav('screen-game');
             updateTopUI();
             
+            // Clear any existing intervals and start a fresh timer
             clearInterval(state.timerInterval);
             state.timerInterval = setInterval(updateTimer, 1000);
             
@@ -868,7 +869,6 @@
         }
 
         function updateTimer() {
-            function updateTimer() {
             if (!state.gameActive) return;
             state.timer--;
             
@@ -905,7 +905,6 @@
             if (state.timer <= 0) {
                 endGame();
             }
-        }
         }
 
         function loadNextWordUI() {
@@ -1188,7 +1187,7 @@
             synth.cancel();
             
             const utterance = new SpeechSynthesisUtterance(state.currentWord);
-            utterance.rate = rate || 0.75; 
+            utterance.rate = rate || 0.65; 
             utterance.pitch = 1.0;
             utterance.lang = 'en-US';
             
